@@ -1,5 +1,7 @@
 #include <iostream>
+#include <array>
 
+#include "pcap.hpp"
 #include "args.hpp"
 
 namespace p2np {
@@ -21,6 +23,8 @@ namespace p2np {
 
 int start(int argc, char **argv) {
     p2np::Args args({argv, static_cast<std::size_t>(argc)});
+
+    pcap::init();
 
     std::cout
         << "pcap file path  : " << args.pcapFilePath() << '\n'
