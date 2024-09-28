@@ -3,6 +3,8 @@
 
 #include "pcap.hpp"
 #include "args.hpp"
+#include "pcap_src.hpp"
+#include "pipeline.hpp"
 
 namespace p2np {
 
@@ -25,13 +27,22 @@ int start(int argc, char **argv) {
     p2np::Args args({argv, static_cast<std::size_t>(argc)});
 
     pcap::init();
+    PcapSrc src(args.pcapFilePath());
+
+    Pipeline pipeline;
+
+    for (auto code = src.next(); code != NextCode::END; code = src.next()) {
+        if (code != NextCode::SUCCESS) {
+            continue;
+        }
+        pipeline.process(src.packet());
+    }
 
     std::cout
-        << "pcap file path  : " << args.pcapFilePath() << '\n'
-        << "host address    : " << args.hostAddress() << '\n'
-        << "host port       : " << args.hostPort() << '\n'
-        << "active timeout  : " << args.activeTimeout() << '\n'
-        << "inactive timeout: " << args.inactiveTimeout() << std::endl;
+        << "Total packets: " << pipeline.totalPackets() << '\n'
+        << "Total size   : " << pipeline.totalSize() << '\n'
+        << "Avg size     : "
+            << (pipeline.totalSize() / pipeline.totalPackets()) << std::endl;
 
     return EXIT_SUCCESS;
 }

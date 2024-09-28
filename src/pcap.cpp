@@ -21,4 +21,16 @@ void init() {
     }
 }
 
+UniquePcapT open_offline(const char *file) {
+    UniquePcapT res(pcap_open_offline(file, errbuf.data()));
+
+    if (!res) {
+        throw std::runtime_error(
+            "pcap_open_offline(\""s + file + "\") has failed: " + strerror()
+        );
+    }
+
+    return res;
+}
+
 } // namespace p2np::pcap
