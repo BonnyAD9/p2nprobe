@@ -2,6 +2,7 @@
 
 #include <span>
 #include <cstddef>
+#include <chrono>
 
 #include <sys/time.h>
 
@@ -14,7 +15,7 @@ struct Packet {
     Packet &operator=(Packet &&) = default;
 
     /// @brief Timestamp of the packet.
-    timeval timestamp;
+    std::chrono::system_clock::time_point timestamp;
     /// @brief Data in this packet.
     std::span<const char> data;
 };
