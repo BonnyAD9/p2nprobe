@@ -8,8 +8,8 @@ namespace p2np {
 std::chrono::system_clock::time_point timeval_to_chrono(timeval t);
 
 PcapSrc::PcapSrc(const std::string &pcapFile) :
-    m_pcap(pcap::open_offline(pcapFile.c_str())),
-    m_packet(new Packet())
+    m_packet(new Packet()),
+    m_pcap(pcap::open_offline(pcapFile.c_str()))
 {}
 
 NextCode PcapSrc::next() noexcept {

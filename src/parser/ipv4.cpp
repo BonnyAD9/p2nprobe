@@ -2,11 +2,10 @@
 
 #include <iostream>
 
-namespace p2np::parsers {
+#include "ip_type.hpp"
+#include "endian.hpp"
 
-enum class Ip4Type : uint8_t {
-    TCP = 0x06,
-};
+namespace p2np::parsers {
 
 struct __attribute__ ((packed)) IPv4Hdr {
     std::uint8_t version : 4;
@@ -20,7 +19,7 @@ struct __attribute__ ((packed)) IPv4Hdr {
     std::uint16_t flags : 3;
     std::uint16_t fragmentOffset : 13;
     std::uint8_t ttl;
-    Ip4Type protocol;
+    IpType protocol;
     std::uint16_t checksum;
     std::uint32_t srcAddress;
     std::uint32_t dstAddress;
@@ -34,7 +33,7 @@ bool ipv4(Packet &pkt) {
     }
 
     auto header = reinterpret_cast<const IPv4Hdr *>(pkt.data.data());
-    if (pkt.data.size() != header->length) {
+    if (pkt.data.size() < from_be(header->length)) {
         std::cerr << "warning: ipv4 length doesn't match the data length.\n";
     }
 
@@ -49,7 +48,7 @@ bool ipv4(Packet &pkt) {
     }
 
     switch (header->protocol) {
-        case Ip4Type::TCP:
+        case IpType::TCP:
             return tcp(pkt);
         default:
             return false;

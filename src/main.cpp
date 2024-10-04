@@ -15,7 +15,7 @@ int start(int argc, char **argv);
 int main(int argc, char **argv) {
     try {
         return p2np::start(argc, argv);
-    } catch(const std::exception& e) {
+    } catch(const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
