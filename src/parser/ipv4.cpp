@@ -1,10 +1,22 @@
 #include <iostream>
 
 #include "endian.hpp"
-#include "ip_type.hpp"
 #include "parsers.hpp"
 
 namespace p2np::parsers {
+
+enum class IpType : std::uint8_t {
+    HOP_BY_HOP_HEADER = 0,
+    TCP = 0x06,
+    ROUTING_HEADER = 46,
+    FRAGMENT_HEADER = 44,
+    ESP_HEADER = 50,
+    AUTH_HEADER = 51,
+    DST_OPTS_HEADER = 60,
+    MOBILITY_HEADER = 135,
+    HOST_ID_HEADER = 139,
+    SHIM6_HEADER = 140,
+};
 
 struct __attribute__((packed)) IPv4Hdr {
     static constexpr std::size_t IHL_MASK = 0x0f;

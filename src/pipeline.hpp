@@ -21,6 +21,7 @@ public:
     std::size_t total_packets() const {
         return _total_packets;
     }
+
     /// @brief Gets the total size of all packets processed in this pipeline.
     [[nodiscard]]
     std::size_t total_size() const {

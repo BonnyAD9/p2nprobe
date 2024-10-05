@@ -8,7 +8,6 @@ namespace p2np::parsers {
 
 enum class EthType : std::uint16_t {
     IPV4 = 0x0800,
-    IPV6 = 0x86dd,
 };
 
 inline EthType from_be(EthType v) {
@@ -36,8 +35,6 @@ bool ethernet(Packet &pkt, std::span<const char> data) {
     switch (from_be(header->type)) {
     case EthType::IPV4:
         return ipv4(pkt, data);
-    case EthType::IPV6:
-        return ipv6(pkt, data);
     default:
         return false;
     }
