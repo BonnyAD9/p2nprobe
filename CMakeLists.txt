@@ -8,6 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(p2nprobe)
 
+file(GLOB FILES CONFIGURE_DEPENDS "src/**/*.cpp" "src/*.cpp")
+target_sources(p2nprobe PRIVATE ${FILES})
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -fsanitize=address")
     target_link_libraries(p2nprobe PRIVATE -fsanitize=address)
@@ -16,5 +19,3 @@ endif()
 target_link_libraries(p2nprobe PRIVATE
     pcap
 )
-
-add_subdirectory(src)
