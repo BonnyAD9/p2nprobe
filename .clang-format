@@ -8,6 +8,7 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent
 BinPackArguments: false
 BinPackParameters: false
+BreakAfterAttributes: Always
 ColumnLimit: 79
 Cpp11BracedListStyle: false
 IncludeBlocks: Regroup

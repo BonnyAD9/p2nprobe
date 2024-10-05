@@ -16,12 +16,12 @@ struct __attribute__((packed)) IPv4Hdr {
     std::uint16_t length;
     std::uint16_t identification;
     std::uint16_t flags : 3;
-    std::uint16_t fragmentOffset : 13;
+    std::uint16_t fragment_offset : 13;
     std::uint8_t ttl;
     IpType protocol;
     std::uint16_t checksum;
-    std::uint32_t srcAddress;
-    std::uint32_t dstAddress;
+    std::uint32_t src_address;
+    std::uint32_t dst_address;
 };
 
 bool ipv4(Packet &pkt, std::span<const char> data) {
@@ -36,8 +36,8 @@ bool ipv4(Packet &pkt, std::span<const char> data) {
         std::cerr << "warning: ipv4 length doesn't match the data length.\n";
     }
 
-    pkt.srcAddress = header->srcAddress;
-    pkt.dstAddress = header->dstAddress;
+    pkt.src_address = header->src_address;
+    pkt.dst_address = header->dst_address;
 
     if (data.size() < header->ihl) {
         std::cerr << "warning: ipv4 header ihl doesn't fit to data.\n";

@@ -17,13 +17,19 @@ public:
 
     /// @brief Gets the total numbe of packets that were processed in this
     /// pipeline.
-    std::size_t totalPackets() const { return m_totalPackets; }
+    [[nodiscard]]
+    std::size_t total_packets() const {
+        return _total_packets;
+    }
     /// @brief Gets the total size of all packets processed in this pipeline.
-    std::size_t totalSize() const { return m_totalSize; }
+    [[nodiscard]]
+    std::size_t total_size() const {
+        return _total_size;
+    }
 
 private:
-    std::size_t m_totalPackets = 0;
-    std::size_t m_totalSize = 0;
+    std::size_t _total_packets = 0;
+    std::size_t _total_size = 0;
 };
 
 } // namespace p2np

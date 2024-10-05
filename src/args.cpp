@@ -13,9 +13,9 @@ concept r_iterator = std::input_iterator<I> && requires(I i) {
 };
 
 template<typename D, typename S>
-void set_unset_value(D &dst, S src, const char *argName);
+void set_unset_value(D &dst, S src, const char *arg_name);
 
-void assert_set(const std::string &str, const char *argName);
+void assert_set(const std::string &str, const char *arg_name);
 
 template<r_iterator<char *> I> char *next(I &iterator, const I &end);
 
@@ -28,39 +28,39 @@ Args::Args(std::span<char *> args) {
     for (auto arg = args.begin(); arg != end; ++arg) {
         if (*arg == "-a"s) {
             set_unset_value(
-                m_activeTimeout,
+                _active_timeout,
                 std::atoll(next(arg, end)),
                 "Active timeout (-a)"
             );
         } else if (*arg == "-i"s) {
             set_unset_value(
-                m_inactiveTimeout,
+                _inactive_timeout,
                 std::atoll(next(arg, end)),
                 "Inactive timeout (-i)"
             );
-        } else if (m_hostPort) {
-            if (!m_pcapFilePath.empty()) {
+        } else if (_host_port) {
+            if (!_pcap_file_path.empty()) {
                 throw std::runtime_error("Unknown argument `"s + *arg + "`.");
             }
-            m_pcapFilePath = *arg;
+            _pcap_file_path = *arg;
         } else {
-            parseAddress(*arg);
+            parse_address(*arg);
         }
     }
 
     // Validate the arguments
-    assert_set(m_pcapFilePath, "pcap file path");
-    assert_set(m_hostAddress, "host adress and port");
+    assert_set(_pcap_file_path, "pcap file path");
+    assert_set(_host_address, "host adress and port");
 }
 
-void Args::parseAddress(std::string value) {
+void Args::parse_address(std::string value) {
     auto idx = static_cast<std::size_t>(
         std::ranges::find(value, ':') - value.begin()
     );
     if (idx == value.size()) {
-        if (m_pcapFilePath.empty()) {
+        if (_pcap_file_path.empty()) {
             // Host address and pcap file are in different order
-            m_pcapFilePath = std::move(value);
+            _pcap_file_path = std::move(value);
             return;
         }
         throw std::runtime_error("Missing port number in the host address.");
@@ -77,22 +77,22 @@ void Args::parseAddress(std::string value) {
     if (r > std::numeric_limits<std::uint16_t>::max()) {
         throw std::runtime_error("Port number is outside of valid range.");
     }
-    set_unset_value(m_hostPort, r, "host");
+    set_unset_value(_host_port, r, "host");
 
-    m_hostAddress = value.substr(0, idx);
+    _host_address = value.substr(0, idx);
 }
 
 template<typename D, typename S>
-void set_unset_value(D &dst, S src, const char *argName) {
+void set_unset_value(D &dst, S src, const char *arg_name) {
     if (dst) {
-        throw std::runtime_error(argName + " is set multiple times."s);
+        throw std::runtime_error(arg_name + " is set multiple times."s);
     }
     dst = D(std::move(src));
 }
 
-void assert_set(const std::string &str, const char *argName) {
+void assert_set(const std::string &str, const char *arg_name) {
     if (str.empty()) {
-        throw std::runtime_error("missing "s + argName + ".");
+        throw std::runtime_error("missing "s + arg_name + ".");
     }
 }
 

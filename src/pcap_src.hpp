@@ -26,8 +26,8 @@ enum class NextCode {
 class PcapSrc {
 public:
     /// @brief Open pcap file.
-    /// @param pcapFile Path to pcap file.
-    PcapSrc(const std::string &pcapFile);
+    /// @param pcap_file Path to pcap file.
+    PcapSrc(const std::string &pcap_file);
 
     /// @brief Gets the next packet. The data is valid only until the next call
     /// to `next()`.
@@ -40,11 +40,11 @@ public:
     ///
     /// Errors are logged to stderr.
     /// @return The last packet retrieved with `next()`.
-    Packet &packet() { return *m_packet; }
+    Packet &packet() { return *_packet; }
 
 private:
-    std::unique_ptr<Packet> m_packet;
-    pcap::UniquePcapT m_pcap;
+    std::unique_ptr<Packet> _packet;
+    pcap::UniquePcapT _pcap;
 };
 
 } // namespace p2np

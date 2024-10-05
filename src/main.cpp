@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     try {
         return p2np::start(argc, argv);
     } catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << '\n';
         return EXIT_FAILURE;
     }
 }
@@ -24,10 +24,10 @@ int main(int argc, char **argv) {
 namespace p2np {
 
 int start(int argc, char **argv) {
-    p2np::Args args({ argv, static_cast<std::size_t>(argc) });
+    const p2np::Args args({ argv, static_cast<std::size_t>(argc) });
 
     pcap::init();
-    PcapSrc src(args.pcapFilePath());
+    PcapSrc src(args.pcap_file_path());
 
     Pipeline pipeline;
 
@@ -38,10 +38,10 @@ int start(int argc, char **argv) {
         pipeline.process(src.packet());
     }
 
-    std::cout << "Total packets: " << pipeline.totalPackets() << '\n'
-              << "Total size   : " << pipeline.totalSize() << '\n'
+    std::cout << "Total packets: " << pipeline.total_packets() << '\n'
+              << "Total size   : " << pipeline.total_size() << '\n'
               << "Avg size     : "
-              << (pipeline.totalSize() / pipeline.totalPackets()) << std::endl;
+              << (pipeline.total_size() / pipeline.total_packets()) << '\n';
 
     return EXIT_SUCCESS;
 }

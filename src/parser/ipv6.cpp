@@ -9,36 +9,38 @@ namespace p2np::parsers {
 
 struct __attribute__((packed)) IPv6Header {
     std::uint32_t version : 4;
-    std::uint32_t trafficClass : 8;
-    std::uint32_t flowLabel : 20;
+    std::uint32_t traffic_class : 8;
+    std::uint32_t flow_label : 20;
     /// @brief Length of the payload including extension headers (not including
     /// this header) in octets (64-bit/8-byte/2^3-byte words)
-    std::uint16_t payloadLength;
-    IpType nextHeader;
-    std::uint8_t hopLimit;
-    IpAddress srcAddress;
-    IpAddress dstAddress;
+    std::uint16_t payload_length;
+    IpType next_hdr;
+    std::uint8_t hop_limit;
+    IpAddress src_address;
+    IpAddress dst_address;
 };
 
 struct __attribute__((packed)) FragmentHdr {
-    IpType nextHeader;
+    IpType next_hdr;
     std::uint8_t reserved;
-    std::uint16_t fragmentOffset;
+    std::uint16_t fragment_offset;
     std::uint32_t identification;
 };
 
 struct __attribute__((packed)) AuthHdr {
-    IpType nextHeader;
+    IpType next_hdr;
     std::uint8_t length;
     std::uint16_t reserved;
     std::uint32_t spi;
-    std::uint32_t seqNum;
+    std::uint32_t seq_num;
 };
 
+constexpr std::size_t UNCOMMON_EXT_HDR_LEN = 6;
+
 struct __attribute__((packed)) ExtHdr {
-    IpType nextHeader;
+    IpType next_hdr;
     std::uint8_t length;
-    char data[6];
+    std::array<char, UNCOMMON_EXT_HDR_LEN> data;
 };
 
 static std::optional<IpType> parse_headers(
@@ -46,7 +48,7 @@ static std::optional<IpType> parse_headers(
 );
 
 template<typename H, typename F>
-std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap);
+std::optional<IpType> skip_hdr(std::span<const char> &data, F len_map);
 static std::optional<IpType> skip_ext_hdr(std::span<const char> &data);
 
 static std::optional<IpType> hop_by_hop(
@@ -76,10 +78,10 @@ bool ipv6(Packet &pkt, std::span<const char> data) {
     auto header = reinterpret_cast<const IPv6Header *>(data.data());
     data = data.subspan(sizeof(IPv6Header));
 
-    pkt.srcAddress = header->srcAddress;
-    pkt.dstAddress = header->dstAddress;
+    pkt.src_address = header->src_address;
+    pkt.dst_address = header->dst_address;
 
-    auto typ = parse_headers(pkt, data, header->nextHeader);
+    auto typ = parse_headers(pkt, data, header->next_hdr);
 
     if (!typ) {
         return false;
@@ -135,7 +137,7 @@ static std::optional<IpType> parse_headers(
 }
 
 template<typename H, typename F>
-std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap) {
+std::optional<IpType> skip_hdr(std::span<const char> &data, F len_map) {
     if (data.size() < sizeof(H)) {
         std::cerr
             << "IPv6 packet too short for IPv6 extension header header\n";
@@ -145,7 +147,7 @@ std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap) {
     auto header = reinterpret_cast<const H *>(data.data());
 
     data = data.subspan(sizeof(H));
-    auto skip_size = static_cast<std::size_t>(lenMap(header));
+    auto skip_size = static_cast<std::size_t>(len_map(header));
 
     if (data.size() < skip_size) {
         std::cerr << "IPv6 packet too short for IPv6 extension header data\n";
@@ -153,7 +155,7 @@ std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap) {
     }
     data = data.subspan(skip_size);
 
-    return header->nextHeader;
+    return header->next_hdr;
 }
 
 static std::optional<IpType> skip_ext_hdr(std::span<const char> &data) {

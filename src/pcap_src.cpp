@@ -7,20 +7,20 @@ namespace p2np {
 
 std::chrono::system_clock::time_point timeval_to_chrono(timeval t);
 
-PcapSrc::PcapSrc(const std::string &pcapFile)
-    : m_packet(new Packet()), m_pcap(pcap::open_offline(pcapFile.c_str())) { }
+PcapSrc::PcapSrc(const std::string &pcap_file)
+    : _packet(new Packet()), _pcap(pcap::open_offline(pcap_file.c_str())) { }
 
 NextCode PcapSrc::next() noexcept {
     using namespace std::chrono;
 
     pcap_pkthdr *header;
     const u_char *data;
-    auto r = pcap_next_ex(m_pcap.get(), &header, &data);
+    auto r = pcap_next_ex(_pcap.get(), &header, &data);
 
     switch (r) {
     case 1:
-        m_packet->data = { reinterpret_cast<const char *>(data), header->len };
-        m_packet->timestamp = timeval_to_chrono(header->ts);
+        _packet->data = { reinterpret_cast<const char *>(data), header->len };
+        _packet->timestamp = timeval_to_chrono(header->ts);
         return NextCode::SUCCESS;
     case 0:
         return NextCode::TIMEOUT;
@@ -30,7 +30,7 @@ NextCode PcapSrc::next() noexcept {
         std::cerr << "pcap_next_ex() has failed: Pcap not activated.\n";
         return NextCode::ERROR;
     case PCAP_ERROR:
-        std::cerr << "pcap_next_ex() has failed: " << pcap_geterr(m_pcap.get())
+        std::cerr << "pcap_next_ex() has failed: " << pcap_geterr(_pcap.get())
                   << '\n';
         return NextCode::ERROR;
     default:

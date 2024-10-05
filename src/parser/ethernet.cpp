@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 
 #include "endian.hpp"
@@ -14,9 +15,11 @@ inline EthType from_be(EthType v) {
     return static_cast<EthType>(from_be(static_cast<std::uint16_t>(v)));
 }
 
+constexpr std::size_t MAC_BYTES = 6;
+
 struct __attribute__((packed)) EthHeader {
-    char dstMac[6];
-    char srcMac[6];
+    std::array<char, MAC_BYTES> dst_mac;
+    std::array<char, MAC_BYTES> src_mac;
     EthType type;
 };
 

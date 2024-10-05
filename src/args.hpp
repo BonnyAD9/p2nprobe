@@ -16,38 +16,52 @@ public:
 
     /// @brief Get path to the pcap file.
     /// @return Path to the pcap file.
-    const std::string &pcapFilePath() const { return m_pcapFilePath; }
+    [[nodiscard]]
+    const std::string &pcap_file_path() const {
+        return _pcap_file_path;
+    }
 
     /// @brief Get the host address.
     /// @return Host address.
-    const std::string &hostAddress() const { return m_hostAddress; }
+    [[nodiscard]]
+    const std::string &host_address() const {
+        return _host_address;
+    }
 
     /// @brief Get the host port number.
     /// @return Port number of the host.
-    std::uint16_t hostPort() const { return m_hostPort; }
+    [[nodiscard]]
+    std::uint16_t host_port() const {
+        return _host_port;
+    }
 
     /// @brief Get the active timeout.
     /// @return Active timeout.
-    std::chrono::seconds activeTimeout() const {
-        return m_activeTimeout.value_or(std::chrono::seconds(60));
+    [[nodiscard]]
+    std::chrono::seconds active_timeout() const {
+        return _active_timeout.value_or(std::chrono::seconds(DEFAULT_TIMEOUT));
     }
 
     /// @brief Get the inactive timeout.
     /// @return Inactive timeout.
-    std::chrono::seconds inactiveTimeout() const {
-        return m_inactiveTimeout.value_or(std::chrono::seconds(60));
+    [[nodiscard]]
+    std::chrono::seconds inactive_timeout() const {
+        return _inactive_timeout.value_or(std::chrono::seconds(DEFAULT_TIMEOUT)
+        );
     }
 
+    static constexpr std::size_t DEFAULT_TIMEOUT = 60;
+
 private:
-    void parseAddress(std::string value);
+    void parse_address(std::string value);
 
-    std::string m_pcapFilePath;
+    std::string _pcap_file_path;
 
-    std::string m_hostAddress;
-    std::uint16_t m_hostPort = 0;
+    std::string _host_address;
+    std::uint16_t _host_port = 0;
 
-    std::optional<std::chrono::seconds> m_activeTimeout;
-    std::optional<std::chrono::seconds> m_inactiveTimeout;
+    std::optional<std::chrono::seconds> _active_timeout;
+    std::optional<std::chrono::seconds> _inactive_timeout;
 };
 
 } // namespace p2np

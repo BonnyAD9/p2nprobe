@@ -19,8 +19,8 @@ struct Packet {
     /// @brief Extract data from the packet.
     void parse();
 
-    IpAddress srcAddress;
-    IpAddress dstAddress;
+    IpAddress src_address;
+    IpAddress dst_address;
 
     /// @brief Timestamp of the packet.
     std::chrono::system_clock::time_point timestamp;

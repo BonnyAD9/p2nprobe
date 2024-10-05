@@ -18,8 +18,16 @@ run: build
 fmt:
 	clang-format -i src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
 
-check:
+.PHONY: cppcheck
+cppcheck:
 	cppcheck --check-level=exhaustive src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
+
+.PHONY: tidy
+tidy: build
+	run-clang-tidy -use-color -quiet -p build -header-filter=src/ 'src/.*\.cpp' 'src/.*\.hpp'
+
+.PHONY: tidy
+check: fmt cppcheck tidy
 
 .PHONY: clean
 clean:

@@ -12,19 +12,28 @@ public:
     IpAddress() = default;
 
     /// @brief Create ip address from ipv4 address.
-    /// @param ipv4Addr Ipv4 address.
-    IpAddress(std::uint32_t ipv4Addr);
+    /// @param ip4_addr Ipv4 address.
+    IpAddress(std::uint32_t ip4_addr);
 
     /// @brief Create ip address from ipv6 address data.
-    /// @param ipAddress Ipv6 address.
-    IpAddress(std::array<char, 16> ipv6Addr);
+    /// @param ip6_addr Ipv6 address.
+    IpAddress(std::array<char, 16> ip6_addr);
 
     /// @brief Checks if the address is ipv4
     /// @return `true` if the address is ipv4, otherwise false.
-    bool isV4() const;
+    [[nodiscard]]
+    bool is_v4() const;
 
-    const char *data() const { return m_address.data(); }
-    const char *dataV4() const { return m_address.data() + 12; }
+    [[nodiscard]]
+    const char *data() const {
+        return m_address.data();
+    }
+    [[nodiscard]]
+    const char *data_v4() const {
+        return m_address.data() + V4_OFFSET;
+    }
+
+    static constexpr std::size_t V4_OFFSET = 12;
 
 private:
     union __attribute__((packed)) {

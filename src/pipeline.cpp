@@ -9,14 +9,14 @@ namespace p2np {
 void Pipeline::process(Packet &pkt) {
     // std::cout << "time: " << pkt.timestamp << " len: " << pkt.data.size() <<
     // std::endl;
-    m_totalSize += pkt.data.size();
-    ++m_totalPackets;
+    _total_size += pkt.data.size();
+    ++_total_packets;
     if (!parsers::parse(pkt)) {
         return;
     }
 
-    std::cout << " src: " << pkt.srcAddress << " dst: " << pkt.dstAddress
-              << std::endl;
+    std::cout << " src: " << pkt.src_address << " dst: " << pkt.dst_address
+              << '\n';
 }
 
 } // namespace p2np
