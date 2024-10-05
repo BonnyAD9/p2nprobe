@@ -16,7 +16,10 @@ run: build
 
 .PHONY: fmt
 fmt:
-	clang-format -i src/**/*.hpp src/**/*.cpp
+	clang-format -i src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
+
+check:
+	cppcheck --check-level=exhaustive src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
 
 .PHONY: clean
 clean:
