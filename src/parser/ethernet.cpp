@@ -32,6 +32,8 @@ bool ethernet(Packet &pkt, std::span<const char> data) {
     auto header = reinterpret_cast<const EthHeader *>(data.data());
     data = data.subspan(sizeof(EthHeader));
 
+    pkt.l3_bytes = data.size();
+
     switch (from_be(header->type)) {
     case EthType::IPV4:
         return ipv4(pkt, data);

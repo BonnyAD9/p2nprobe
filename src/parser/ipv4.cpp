@@ -1,22 +1,10 @@
 #include <iostream>
 
+#include "../ip_protocol.hpp"
 #include "endian.hpp"
 #include "parsers.hpp"
 
 namespace p2np::parsers {
-
-enum class IpType : std::uint8_t {
-    HOP_BY_HOP_HEADER = 0,
-    TCP = 0x06,
-    ROUTING_HEADER = 46,
-    FRAGMENT_HEADER = 44,
-    ESP_HEADER = 50,
-    AUTH_HEADER = 51,
-    DST_OPTS_HEADER = 60,
-    MOBILITY_HEADER = 135,
-    HOST_ID_HEADER = 139,
-    SHIM6_HEADER = 140,
-};
 
 struct __attribute__((packed)) IPv4Hdr {
     static constexpr std::size_t IHL_MASK = 0x0f;
@@ -51,7 +39,7 @@ struct __attribute__((packed)) IPv4Hdr {
     /// +-----+-------------------------+
     std::uint16_t flags_and_fragment_offset_be;
     std::uint8_t ttl;
-    IpType protocol;
+    IpProtocol protocol;
     std::uint16_t checksum_be;
     std::uint32_t src_address;
     std::uint32_t dst_address;
@@ -71,6 +59,8 @@ bool ipv4(Packet &pkt, std::span<const char> data) {
 
     pkt.src_address = header->src_address;
     pkt.dst_address = header->dst_address;
+    pkt.ip_protocol = header->protocol;
+    pkt.ip_tos = header->dscp_and_ecn;
 
     if (data.size() < header->ihl()) {
         std::cerr << "warning: ipv4 header ihl doesn't fit to data.\n";
@@ -80,7 +70,7 @@ bool ipv4(Packet &pkt, std::span<const char> data) {
     }
 
     switch (header->protocol) {
-    case IpType::TCP:
+    case IpProtocol::TCP:
         return tcp(pkt, data);
     default:
         return false;

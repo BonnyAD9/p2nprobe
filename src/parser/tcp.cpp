@@ -47,6 +47,7 @@ bool tcp(Packet &pkt, std::span<const char> data) {
 
     pkt.src_port = header->src_port();
     pkt.dst_port = header->dst_port();
+    pkt.tcp_flags = header->flags;
 
     const std::size_t off = header->data_offset();
     if (off < sizeof(TcpHeader)) {
