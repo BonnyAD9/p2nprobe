@@ -24,31 +24,31 @@ struct __attribute__((packed)) IPv4Hdr {
     std::uint32_t dstAddress;
 };
 
-bool ipv4(Packet &pkt) {
-    if (pkt.data.size() < sizeof(IPv4Hdr)) {
+bool ipv4(Packet &pkt, std::span<const char> data) {
+    if (data.size() < sizeof(IPv4Hdr)) {
         std::cerr
             << "error: Packet type is ipv4 but it doesn't fit ipv4 header.\n";
         return false;
     }
 
-    auto header = reinterpret_cast<const IPv4Hdr *>(pkt.data.data());
-    if (pkt.data.size() < from_be(header->length)) {
+    auto header = reinterpret_cast<const IPv4Hdr *>(data.data());
+    if (data.size() < from_be(header->length)) {
         std::cerr << "warning: ipv4 length doesn't match the data length.\n";
     }
 
     pkt.srcAddress = header->srcAddress;
     pkt.dstAddress = header->dstAddress;
 
-    if (pkt.data.size() < header->ihl) {
+    if (data.size() < header->ihl) {
         std::cerr << "warning: ipv4 header ihl doesn't fit to data.\n";
-        pkt.data = pkt.data.subspan(pkt.data.size());
+        data = data.subspan(pkt.data.size());
     } else {
-        pkt.data = pkt.data.subspan(header->ihl * 4);
+        data = data.subspan(header->ihl * 4);
     }
 
     switch (header->protocol) {
     case IpType::TCP:
-        return tcp(pkt);
+        return tcp(pkt, data);
     default:
         return false;
     }

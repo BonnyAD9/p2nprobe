@@ -11,7 +11,7 @@ void Pipeline::process(Packet &pkt) {
     // std::endl;
     m_totalSize += pkt.data.size();
     ++m_totalPackets;
-    if (!parsers::ethernet(pkt)) {
+    if (!parsers::parse(pkt)) {
         return;
     }
 

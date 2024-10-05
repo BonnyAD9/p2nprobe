@@ -20,21 +20,21 @@ struct __attribute__((packed)) EthHeader {
     EthType type;
 };
 
-bool ethernet(Packet &pkt) {
-    if (pkt.data.size() < sizeof(EthHeader)) {
+bool ethernet(Packet &pkt, std::span<const char> data) {
+    if (data.size() < sizeof(EthHeader)) {
         std::cerr
             << "error: Packet data is too small to fit ethernet header.`n";
         return false;
     }
 
-    auto header = reinterpret_cast<const EthHeader *>(pkt.data.data());
-    pkt.data = pkt.data.subspan(sizeof(EthHeader));
+    auto header = reinterpret_cast<const EthHeader *>(data.data());
+    data = data.subspan(sizeof(EthHeader));
 
     switch (from_be(header->type)) {
     case EthType::IPV4:
-        return ipv4(pkt);
+        return ipv4(pkt, data);
     case EthType::IPV6:
-        return ipv6(pkt);
+        return ipv6(pkt, data);
     default:
         return false;
     }

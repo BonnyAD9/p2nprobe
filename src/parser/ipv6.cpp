@@ -41,37 +41,45 @@ struct __attribute__((packed)) ExtHdr {
     char data[6];
 };
 
-static std::optional<IpType>
-skip_headers(Packet &pkt, std::size_t &hlen, IpType type);
+static std::optional<IpType> parse_headers(
+    Packet &pkt, std::span<const char> &data, IpType type
+);
 
 template<typename H, typename F>
-std::optional<IpType> skip_hdr(Packet &pkt, std::size_t &hlen, F lenMap);
-std::optional<IpType> skip_ext_hdr(Packet &pkt, std::size_t &hlen);
+std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap);
+static std::optional<IpType> skip_ext_hdr(std::span<const char> &data);
 
-static std::optional<IpType> hop_by_hop(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> routing(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> fragment(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> auth(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> esp(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> dst_opts(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> mobility(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> host_id(Packet &pkt, std::size_t &hlen);
-static std::optional<IpType> shim6(Packet &pkt, std::size_t &hlen);
+static std::optional<IpType> hop_by_hop(
+    Packet &pkt, std::span<const char> &data
+);
+static std::optional<IpType> routing(Packet &pkt, std::span<const char> &data);
+static std::optional<IpType> fragment(
+    Packet &pkt, std::span<const char> &data
+);
+static std::optional<IpType> auth(Packet &pkt, std::span<const char> &data);
+static std::optional<IpType> esp(Packet &pkt, std::span<const char> &data);
+static std::optional<IpType> dst_opts(
+    Packet &pkt, std::span<const char> &data
+);
+static std::optional<IpType> mobility(
+    Packet &pkt, std::span<const char> &data
+);
+static std::optional<IpType> host_id(Packet &pkt, std::span<const char> &data);
+static std::optional<IpType> shim6(Packet &pkt, std::span<const char> &data);
 
-bool ipv6(Packet &pkt) {
-    if (pkt.data.size() < sizeof(IPv6Header)) {
+bool ipv6(Packet &pkt, std::span<const char> data) {
+    if (data.size() < sizeof(IPv6Header)) {
         std::cerr << "IPv6 packet too short for IPv6 header\n";
         return false;
     }
 
-    auto header = reinterpret_cast<const IPv6Header *>(pkt.data.data());
-    pkt.data = pkt.data.subspan(sizeof(IPv6Header));
+    auto header = reinterpret_cast<const IPv6Header *>(data.data());
+    data = data.subspan(sizeof(IPv6Header));
 
     pkt.srcAddress = header->srcAddress;
     pkt.dstAddress = header->dstAddress;
 
-    std::size_t hlen = 0;
-    auto typ = skip_headers(pkt, hlen, header->nextHeader);
+    auto typ = parse_headers(pkt, data, header->nextHeader);
 
     if (!typ) {
         return false;
@@ -79,43 +87,44 @@ bool ipv6(Packet &pkt) {
 
     switch (*typ) {
     case IpType::TCP:
-        return tcp(pkt);
+        return tcp(pkt, data);
     default:
         return false;
     }
 }
 
-static std::optional<IpType>
-skip_headers(Packet &pkt, std::size_t &hlen, IpType type) {
+static std::optional<IpType> parse_headers(
+    Packet &pkt, std::span<const char> &data, IpType type
+) {
     std::optional<IpType> next_type = type;
     while (next_type) {
         switch (*next_type) {
         case IpType::HOP_BY_HOP_HEADER:
-            next_type = hop_by_hop(pkt, hlen);
+            next_type = hop_by_hop(pkt, data);
             break;
         case IpType::ROUTING_HEADER:
-            next_type = routing(pkt, hlen);
+            next_type = routing(pkt, data);
             break;
         case IpType::FRAGMENT_HEADER:
-            next_type = fragment(pkt, hlen);
+            next_type = fragment(pkt, data);
             break;
         case IpType::AUTH_HEADER:
-            next_type = auth(pkt, hlen);
+            next_type = auth(pkt, data);
             break;
         case IpType::ESP_HEADER:
-            next_type = esp(pkt, hlen);
+            next_type = esp(pkt, data);
             break;
         case IpType::DST_OPTS_HEADER:
-            next_type = dst_opts(pkt, hlen);
+            next_type = dst_opts(pkt, data);
             break;
         case IpType::MOBILITY_HEADER:
-            next_type = mobility(pkt, hlen);
+            next_type = mobility(pkt, data);
             break;
         case IpType::HOST_ID_HEADER:
-            next_type = host_id(pkt, hlen);
+            next_type = host_id(pkt, data);
             break;
         case IpType::SHIM6_HEADER:
-            next_type = shim6(pkt, hlen);
+            next_type = shim6(pkt, data);
             break;
         default:
             return next_type;
@@ -126,69 +135,67 @@ skip_headers(Packet &pkt, std::size_t &hlen, IpType type) {
 }
 
 template<typename H, typename F>
-std::optional<IpType> skip_hdr(Packet &pkt, std::size_t &hlen, F lenMap) {
-    if (pkt.data.size() < sizeof(H)) {
+std::optional<IpType> skip_hdr(std::span<const char> &data, F lenMap) {
+    if (data.size() < sizeof(H)) {
         std::cerr
             << "IPv6 packet too short for IPv6 extension header header\n";
         return std::nullopt;
     }
 
-    auto header = reinterpret_cast<const H *>(pkt.data.data());
+    auto header = reinterpret_cast<const H *>(data.data());
 
-    hlen += sizeof(H);
-    pkt.data = pkt.data.subspan(sizeof(H));
+    data = data.subspan(sizeof(H));
     auto skip_size = static_cast<std::size_t>(lenMap(header));
 
-    if (pkt.data.size() < skip_size) {
+    if (data.size() < skip_size) {
         std::cerr << "IPv6 packet too short for IPv6 extension header data\n";
         return std::nullopt;
     }
-    hlen += skip_size;
-    pkt.data = pkt.data.subspan(skip_size);
+    data = data.subspan(skip_size);
 
     return header->nextHeader;
 }
 
-std::optional<IpType> skip_ext_hdr(Packet &pkt, std::size_t &hlen) {
-    return skip_hdr<ExtHdr>(pkt, hlen, [=](auto h) { return h->length << 3; });
+static std::optional<IpType> skip_ext_hdr(std::span<const char> &data) {
+    return skip_hdr<ExtHdr>(data, [=](auto h) { return h->length << 3; });
 }
 
-static std::optional<IpType> hop_by_hop(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> hop_by_hop(
+    Packet &, std::span<const char> &data
+) {
+    return skip_ext_hdr(data);
 }
 
-static std::optional<IpType> routing(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> routing(Packet &, std::span<const char> &data) {
+    return skip_ext_hdr(data);
 }
 
-static std::optional<IpType> fragment(Packet &pkt, std::size_t &hlen) {
-    return skip_hdr<FragmentHdr>(pkt, hlen, [=](auto) { return 0; });
+static std::optional<IpType> fragment(Packet &, std::span<const char> &data) {
+    return skip_hdr<FragmentHdr>(data, [=](auto) { return 0; });
 }
 
-static std::optional<IpType> auth(Packet &pkt, std::size_t &hlen) {
-    return skip_hdr<AuthHdr>(pkt, hlen, [=](auto h) {
-        return h->length * 4 - 1;
-    });
+static std::optional<IpType> auth(Packet &, std::span<const char> &data) {
+    return skip_hdr<AuthHdr>(data, [=](auto h) { return h->length * 4 - 1; });
 }
 
-static std::optional<IpType> esp(Packet &, std::size_t &) {
+static std::optional<IpType> esp(Packet &, std::span<const char> &) {
     return std::nullopt;
 }
 
-static std::optional<IpType> dst_opts(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> dst_opts(Packet &, std::span<const char> &data) {
+    return skip_ext_hdr(data);
 }
 
-static std::optional<IpType> mobility(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> mobility(Packet &, std::span<const char> &data) {
+    return skip_ext_hdr(data);
 }
 
-static std::optional<IpType> host_id(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> host_id(Packet &, std::span<const char> &data) {
+    return skip_ext_hdr(data);
 }
 
-static std::optional<IpType> shim6(Packet &pkt, std::size_t &hlen) {
-    return skip_ext_hdr(pkt, hlen);
+static std::optional<IpType> shim6(Packet &, std::span<const char> &data) {
+    return skip_ext_hdr(data);
 }
 
 } // namespace p2np::parsers

@@ -21,3 +21,4 @@ IncludeCategories:
 PackConstructorInitializers: NextLine
 SpaceAfterTemplateKeyword: false
 SpaceInEmptyBlock: true
+PenaltyReturnTypeOnItsOwnLine: 200
