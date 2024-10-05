@@ -12,8 +12,9 @@ void Pipeline::process(Packet &pkt) {
     _total_size += pkt.data.size();
     ++_total_packets;
 
-    std::cout << "src='" << pkt.src_address << ':' << pkt.src_port << "' dst='"
-              << pkt.dst_address << ':' << pkt.dst_port << "' proto='"
+    std::cout << "time='" << pkt.timestamp << "' src='" << pkt.src_address
+              << ':' << pkt.src_port << "' dst='" << pkt.dst_address << ':'
+              << pkt.dst_port << "' proto='"
               << static_cast<int>(pkt.ip_protocol) << "' tos='"
               << static_cast<int>(pkt.ip_tos) << "' flags='"
               << static_cast<int>(pkt.tcp_flags) << "'\n";
