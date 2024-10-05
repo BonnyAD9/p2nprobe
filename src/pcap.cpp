@@ -5,15 +5,15 @@
 
 #include <pcap/pcap.h>
 
+#include "ip_address.hpp"
+
 namespace p2np::pcap {
 
 using std::string_literals::operator""s;
 
 static std::array<char, PCAP_ERRBUF_SIZE> errbuf;
 
-const char *strerror() {
-    return errbuf.data();
-}
+const char *strerror() { return errbuf.data(); }
 
 void init() {
     if (pcap_init(0, errbuf.data()) == PCAP_ERROR) {

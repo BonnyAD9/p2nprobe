@@ -1,8 +1,7 @@
-#include "parsers.hpp"
-
 #include <iostream>
 
 #include "endian.hpp"
+#include "parsers.hpp"
 
 namespace p2np::parsers {
 
@@ -15,7 +14,7 @@ inline EthType from_be(EthType v) {
     return static_cast<EthType>(from_be(static_cast<std::uint16_t>(v)));
 }
 
-struct __attribute__ ((packed)) EthHeader {
+struct __attribute__((packed)) EthHeader {
     char dstMac[6];
     char srcMac[6];
     EthType type;
@@ -32,14 +31,13 @@ bool ethernet(Packet &pkt) {
     pkt.data = pkt.data.subspan(sizeof(EthHeader));
 
     switch (from_be(header->type)) {
-        case EthType::IPV4:
-            return ipv4(pkt);
-        case EthType::IPV6:
-            return ipv6(pkt);
-        default:
-            return false;
+    case EthType::IPV4:
+        return ipv4(pkt);
+    case EthType::IPV6:
+        return ipv6(pkt);
+    default:
+        return false;
     }
 }
 
-} // namespace p2np
-
+} // namespace p2np::parsers

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <span>
-#include <cstddef>
 #include <chrono>
+#include <cstddef>
+#include <span>
 
 #include <sys/time.h>
 

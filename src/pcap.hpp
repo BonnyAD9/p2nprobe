@@ -1,7 +1,8 @@
 #pragma once
 
-#include <pcap/pcap.h>
 #include <memory>
+
+#include <pcap/pcap.h>
 
 namespace p2np::pcap {
 
@@ -9,9 +10,7 @@ namespace destroy {
 
 class PcapT {
 public:
-    void operator()(void *ptr) {
-        pcap_close(reinterpret_cast<pcap_t *>(ptr));
-    }
+    void operator()(void *ptr) { pcap_close(reinterpret_cast<pcap_t *>(ptr)); }
 };
 
 } // namespace destroy

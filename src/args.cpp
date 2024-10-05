@@ -1,18 +1,23 @@
 #include "args.hpp"
 
+#include <iterator>
 #include <stdexcept>
 
 namespace p2np {
 
 using std::string_literals::operator""s;
 
+template<typename I, typename Item>
+concept r_iterator = std::input_iterator<I> && requires(I i) {
+    requires std::is_same_v<std::remove_reference_t<decltype(*i)>, Item>;
+};
+
 template<typename D, typename S>
-void set_unset_value(D &dst, S src, const char * argName);
+void set_unset_value(D &dst, S src, const char *argName);
 
 void assert_set(const std::string &str, const char *argName);
 
-template<typename I>
-char *next(I &iterator, const I &end);
+template<r_iterator<char *> I> char *next(I &iterator, const I &end);
 
 Args::Args(std::span<char *> args) {
     // skip the path to executable
@@ -49,7 +54,9 @@ Args::Args(std::span<char *> args) {
 }
 
 void Args::parseAddress(std::string value) {
-    auto idx = static_cast<std::size_t>(std::ranges::find(value, ':') - value.begin());
+    auto idx = static_cast<std::size_t>(
+        std::ranges::find(value, ':') - value.begin()
+    );
     if (idx == value.size()) {
         if (m_pcapFilePath.empty()) {
             // Host address and pcap file are in different order
@@ -76,7 +83,7 @@ void Args::parseAddress(std::string value) {
 }
 
 template<typename D, typename S>
-void set_unset_value(D& dst, S src, const char *argName) {
+void set_unset_value(D &dst, S src, const char *argName) {
     if (dst) {
         throw std::runtime_error(argName + " is set multiple times."s);
     }
@@ -89,14 +96,7 @@ void assert_set(const std::string &str, const char *argName) {
     }
 }
 
-template<typename I>
-char *next(I &iterator, const I &end) {
-    // This expects char pointer iterator.
-    static_assert(std::is_same_v<
-        std::remove_reference_t<decltype(*iterator)>,
-        char *
-    >);
-
+template<r_iterator<char *> I> char *next(I &iterator, const I &end) {
     // Get the current value in case of error message.
     char *value = *iterator++;
     if (iterator == end) {
@@ -108,4 +108,3 @@ char *next(I &iterator, const I &end) {
 }
 
 } // namespace p2np
-

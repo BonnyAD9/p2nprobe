@@ -1,13 +1,12 @@
-#include "parsers.hpp"
-
 #include <iostream>
 
-#include "ip_type.hpp"
 #include "endian.hpp"
+#include "ip_type.hpp"
+#include "parsers.hpp"
 
 namespace p2np::parsers {
 
-struct __attribute__ ((packed)) IPv4Hdr {
+struct __attribute__((packed)) IPv4Hdr {
     std::uint8_t version : 4;
     /// @brief Header length in 32but (4byte) words.
     std::uint8_t ihl : 4;
@@ -48,12 +47,11 @@ bool ipv4(Packet &pkt) {
     }
 
     switch (header->protocol) {
-        case IpType::TCP:
-            return tcp(pkt);
-        default:
-            return false;
+    case IpType::TCP:
+        return tcp(pkt);
+    default:
+        return false;
     }
 }
 
 } // namespace p2np::parsers
-

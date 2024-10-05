@@ -7,4 +7,3 @@ bool tcp(Packet &pkt) {
 }
 
 } // namespace p2np::parsers
-

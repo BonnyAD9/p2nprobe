@@ -24,4 +24,4 @@ bool ipv6(Packet &pkt);
 /// @return True if necesary data wa successfully readed, otherwise false.
 bool tcp(Packet &pkt);
 
-} // namespace parsers
+} // namespace p2np::parsers

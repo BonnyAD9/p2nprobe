@@ -1,13 +1,13 @@
 #pragma once
 
-#include <cstdint>
-#include <span>
 #include <array>
+#include <cstdint>
 #include <ostream>
+#include <span>
 
 namespace p2np {
 
-class __attribute__ ((packed)) IpAddress {
+class __attribute__((packed)) IpAddress {
 public:
     IpAddress() = default;
 
@@ -27,8 +27,8 @@ public:
     const char *dataV4() const { return m_address.data() + 12; }
 
 private:
-    union __attribute__ ((packed)) {
-        std::array<char, 16> m_address = {0};
+    union __attribute__((packed)) {
+        std::array<char, 16> m_address = { 0 };
         std::array<uint32_t, 4> m_address32;
         std::array<uint64_t, 2> m_address64;
     };
@@ -37,4 +37,3 @@ private:
 std::ostream &operator<<(std::ostream &os, IpAddress const &m);
 
 } // namespace p2np
-

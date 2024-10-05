@@ -14,6 +14,10 @@ build:
 run: build
 	build/p2nprobe
 
+.PHONY: fmt
+fmt:
+	clang-format -i src/**/*.hpp src/**/*.cpp
+
 .PHONY: clean
 clean:
 	-cd build && $(MAKE) clean

@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 
-#include "pcap.hpp"
 #include "packet.hpp"
+#include "pcap.hpp"
 
 namespace p2np {
 

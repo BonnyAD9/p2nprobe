@@ -1,14 +1,13 @@
-#include "parsers.hpp"
-
 #include <iostream>
 #include <optional>
 
 #include "../ip_address.hpp"
 #include "ip_type.hpp"
+#include "parsers.hpp"
 
 namespace p2np::parsers {
 
-struct __attribute__ ((packed)) IPv6Header {
+struct __attribute__((packed)) IPv6Header {
     std::uint32_t version : 4;
     std::uint32_t trafficClass : 8;
     std::uint32_t flowLabel : 20;
@@ -21,14 +20,14 @@ struct __attribute__ ((packed)) IPv6Header {
     IpAddress dstAddress;
 };
 
-struct __attribute__ ((packed)) FragmentHdr {
+struct __attribute__((packed)) FragmentHdr {
     IpType nextHeader;
     std::uint8_t reserved;
     std::uint16_t fragmentOffset;
     std::uint32_t identification;
 };
 
-struct __attribute__ ((packed)) AuthHdr {
+struct __attribute__((packed)) AuthHdr {
     IpType nextHeader;
     std::uint8_t length;
     std::uint16_t reserved;
@@ -36,13 +35,14 @@ struct __attribute__ ((packed)) AuthHdr {
     std::uint32_t seqNum;
 };
 
-struct __attribute__ ((packed)) ExtHdr {
+struct __attribute__((packed)) ExtHdr {
     IpType nextHeader;
     std::uint8_t length;
     char data[6];
 };
 
-static std::optional<IpType> skip_headers(Packet &pkt, std::size_t &hlen, IpType type);
+static std::optional<IpType>
+skip_headers(Packet &pkt, std::size_t &hlen, IpType type);
 
 template<typename H, typename F>
 std::optional<IpType> skip_hdr(Packet &pkt, std::size_t &hlen, F lenMap);
@@ -78,46 +78,47 @@ bool ipv6(Packet &pkt) {
     }
 
     switch (*typ) {
-        case IpType::TCP:
-            return tcp(pkt);
-        default:
-            return false;
+    case IpType::TCP:
+        return tcp(pkt);
+    default:
+        return false;
     }
 }
 
-static std::optional<IpType> skip_headers(Packet &pkt, std::size_t &hlen, IpType type) {
+static std::optional<IpType>
+skip_headers(Packet &pkt, std::size_t &hlen, IpType type) {
     std::optional<IpType> next_type = type;
     while (next_type) {
         switch (*next_type) {
-            case IpType::HOP_BY_HOP_HEADER:
-                next_type = hop_by_hop(pkt, hlen);
-                break;
-            case IpType::ROUTING_HEADER:
-                next_type = routing(pkt, hlen);
-                break;
-            case IpType::FRAGMENT_HEADER:
-                next_type = fragment(pkt, hlen);
-                break;
-            case IpType::AUTH_HEADER:
-                next_type = auth(pkt, hlen);
-                break;
-            case IpType::ESP_HEADER:
-                next_type = esp(pkt, hlen);
-                break;
-            case IpType::DST_OPTS_HEADER:
-                next_type = dst_opts(pkt, hlen);
-                break;
-            case IpType::MOBILITY_HEADER:
-                next_type = mobility(pkt, hlen);
-                break;
-            case IpType::HOST_ID_HEADER:
-                next_type = host_id(pkt, hlen);
-                break;
-            case IpType::SHIM6_HEADER:
-                next_type = shim6(pkt, hlen);
-                break;
-            default:
-                return next_type;
+        case IpType::HOP_BY_HOP_HEADER:
+            next_type = hop_by_hop(pkt, hlen);
+            break;
+        case IpType::ROUTING_HEADER:
+            next_type = routing(pkt, hlen);
+            break;
+        case IpType::FRAGMENT_HEADER:
+            next_type = fragment(pkt, hlen);
+            break;
+        case IpType::AUTH_HEADER:
+            next_type = auth(pkt, hlen);
+            break;
+        case IpType::ESP_HEADER:
+            next_type = esp(pkt, hlen);
+            break;
+        case IpType::DST_OPTS_HEADER:
+            next_type = dst_opts(pkt, hlen);
+            break;
+        case IpType::MOBILITY_HEADER:
+            next_type = mobility(pkt, hlen);
+            break;
+        case IpType::HOST_ID_HEADER:
+            next_type = host_id(pkt, hlen);
+            break;
+        case IpType::SHIM6_HEADER:
+            next_type = shim6(pkt, hlen);
+            break;
+        default:
+            return next_type;
         }
     }
 
@@ -165,7 +166,9 @@ static std::optional<IpType> fragment(Packet &pkt, std::size_t &hlen) {
 }
 
 static std::optional<IpType> auth(Packet &pkt, std::size_t &hlen) {
-    return skip_hdr<AuthHdr>(pkt, hlen, [=](auto h) { return h->length * 4 - 1; });
+    return skip_hdr<AuthHdr>(pkt, hlen, [=](auto h) {
+        return h->length * 4 - 1;
+    });
 }
 
 static std::optional<IpType> esp(Packet &, std::size_t &) {
@@ -188,6 +191,4 @@ static std::optional<IpType> shim6(Packet &pkt, std::size_t &hlen) {
     return skip_ext_hdr(pkt, hlen);
 }
 
-
 } // namespace p2np::parsers
-
