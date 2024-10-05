@@ -7,19 +7,40 @@
 namespace p2np::parsers {
 
 struct __attribute__((packed)) IPv4Hdr {
-    std::uint8_t version : 4;
-    /// @brief Header length in 32but (4byte) words.
-    std::uint8_t ihl : 4;
-    std::uint8_t dscp : 6;
-    std::uint8_t ecn : 2;
+    static constexpr std::size_t IHL_MASK = 0x0f;
+
+    [[nodiscard]]
+    unsigned ihl() const {
+        return (version_and_ihl & IHL_MASK) * 4;
+    }
     /// @brief Length including the header in bytes.
-    std::uint16_t length;
-    std::uint16_t identification;
-    std::uint16_t flags : 3;
-    std::uint16_t fragment_offset : 13;
+    [[nodiscard]]
+    std::uint16_t length() const {
+        return from_be(length_be);
+    }
+
+    ///  0 1 2 3 4 5 6 7
+    /// +-------+-------+
+    /// | Ver.  | IHL   |
+    /// +-------+-------+
+    std::uint8_t version_and_ihl;
+    ///  0 1 2 3 4 5 6 7
+    /// +-----------+---+
+    /// | DSCP      | E |
+    /// +-----------+---+
+    std::uint8_t dscp_and_ecn;
+    /// @brief Header length in 32bit (4byte) words.
+    /// @brief Length including the header in bytes.
+    std::uint16_t length_be;
+    std::uint16_t identification_be;
+    ///  0 1 2 3 4 5 6 7 8 9 A B C D E F
+    /// +-----+-------------------------+
+    /// | Fl. | Fragment offset         |
+    /// +-----+-------------------------+
+    std::uint16_t flags_and_fragment_offset_be;
     std::uint8_t ttl;
     IpType protocol;
-    std::uint16_t checksum;
+    std::uint16_t checksum_be;
     std::uint32_t src_address;
     std::uint32_t dst_address;
 };
@@ -32,18 +53,18 @@ bool ipv4(Packet &pkt, std::span<const char> data) {
     }
 
     auto header = reinterpret_cast<const IPv4Hdr *>(data.data());
-    if (data.size() < from_be(header->length)) {
+    if (data.size() < header->length()) {
         std::cerr << "warning: ipv4 length doesn't match the data length.\n";
     }
 
     pkt.src_address = header->src_address;
     pkt.dst_address = header->dst_address;
 
-    if (data.size() < header->ihl) {
+    if (data.size() < header->ihl()) {
         std::cerr << "warning: ipv4 header ihl doesn't fit to data.\n";
         data = data.subspan(pkt.data.size());
     } else {
-        data = data.subspan(header->ihl * 4);
+        data = data.subspan(header->ihl());
     }
 
     switch (header->protocol) {

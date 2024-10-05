@@ -8,12 +8,15 @@
 namespace p2np::parsers {
 
 struct __attribute__((packed)) IPv6Header {
-    std::uint32_t version : 4;
-    std::uint32_t traffic_class : 8;
-    std::uint32_t flow_label : 20;
+    ///  0                               1
+    ///  0 1 2 3 4 5 6 7 8 9 A B C D E F 0 1 2 3 4 5 6 7 8 9 A B C D E F
+    /// +-------+---------------+---------------------------------------+
+    /// | Ver.  | Traffic class | Flow label                            |
+    /// +-------+---------------+---------------------------------------+
+    std::uint32_t version_and_traffic_class_and_flow_label_be;
     /// @brief Length of the payload including extension headers (not including
     /// this header) in octets (64-bit/8-byte/2^3-byte words)
-    std::uint16_t payload_length;
+    std::uint16_t payload_length_be;
     IpType next_hdr;
     std::uint8_t hop_limit;
     IpAddress src_address;
@@ -23,16 +26,16 @@ struct __attribute__((packed)) IPv6Header {
 struct __attribute__((packed)) FragmentHdr {
     IpType next_hdr;
     std::uint8_t reserved;
-    std::uint16_t fragment_offset;
-    std::uint32_t identification;
+    std::uint16_t fragment_offset_be;
+    std::uint32_t identification_be;
 };
 
 struct __attribute__((packed)) AuthHdr {
     IpType next_hdr;
     std::uint8_t length;
-    std::uint16_t reserved;
-    std::uint32_t spi;
-    std::uint32_t seq_num;
+    std::uint16_t reserved_be;
+    std::uint32_t spi_be;
+    std::uint32_t seq_num_be;
 };
 
 constexpr std::size_t UNCOMMON_EXT_HDR_LEN = 6;

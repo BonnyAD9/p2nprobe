@@ -24,7 +24,8 @@ cppcheck:
 
 .PHONY: tidy
 tidy: build
-	run-clang-tidy -use-color -quiet -p build -header-filter=src/ 'src/.*\.cpp' 'src/.*\.hpp'
+	run-clang-tidy $(PARALEL) -use-color -quiet -p build \
+		-header-filter=src/ 'src/.*\.cpp' 'src/.*\.hpp'
 
 .PHONY: tidy
 check: fmt cppcheck tidy
