@@ -10,6 +10,7 @@ namespace p2np {
 struct __attribute__((packed)) IpAddress {
 public:
     IpAddress() = default;
+    bool operator==(const IpAddress &) const = default;
 
     /// @brief Create ip address from ipv4 address.
     /// @param addr Ipv4 address.
