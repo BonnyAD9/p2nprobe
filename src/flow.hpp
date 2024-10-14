@@ -11,11 +11,12 @@ namespace p2np {
 /// @brief Unidirectional flow.
 class Flow {
 public:
-    /// @brief Create new flow from its first packet.
-    /// @param pkt First packet in the flow.
-    Flow(const Packet &pkt);
+    /// @brief Create new empty flow
+    Flow() = default;
 
     /// @brief Add this packet to the flow statistics.
+    ///
+    /// This may be the first packet.
     /// @param pkt Packet to add to the flow statistics.
     void add(const Packet &pkt);
 
@@ -91,15 +92,15 @@ public:
 private:
     IpAddress _src_addr;
     IpAddress _dst_addr;
-    std::uint32_t _pkt_cnt = 1;
-    std::size_t _bytes;
+    std::uint32_t _pkt_cnt = 0;
+    std::size_t _bytes = 0;
     std::chrono::system_clock::time_point _first;
     std::chrono::system_clock::time_point _last;
-    std::uint16_t _src_port;
-    std::uint16_t _dst_port;
-    std::uint8_t _tcp_flags;
-    IpProtocol _protocol;
-    std::uint8_t _tos;
+    std::uint16_t _src_port = 0;
+    std::uint16_t _dst_port = 0;
+    std::uint8_t _tcp_flags = 0;
+    IpProtocol _protocol{};
+    std::uint8_t _tos = 0;
 };
 
 } // namespace p2np

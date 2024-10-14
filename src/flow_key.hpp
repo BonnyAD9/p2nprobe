@@ -12,7 +12,7 @@ struct __attribute__((packed)) FlowKey {
 
     /// @brief Extract the flow key from packet.
     /// @param pkt Packet to extract the flow key from.
-    FlowKey(Packet &pkt)
+    FlowKey(const Packet &pkt)
         : src_adr(pkt.src_address),
           dst_adr(pkt.dst_address),
           src_port(pkt.src_port),

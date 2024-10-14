@@ -8,8 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(p2nprobe)
 
-file(GLOB FILES CONFIGURE_DEPENDS "src/**/*.cpp" "src/*.cpp")
-target_sources(p2nprobe PRIVATE ${FILES})
+file(GLOB files CONFIGURE_DEPENDS "src/**/*.cpp" "src/*.cpp")
+target_sources(p2nprobe PRIVATE ${files})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -fsanitize=address")
