@@ -12,7 +12,7 @@ namespace p2np {
 class Flow {
 public:
     /// @brief Create new empty flow
-    Flow() = default;
+    Flow(const Packet &pkt);
 
     /// @brief Add this packet to the flow statistics.
     ///
@@ -89,18 +89,22 @@ public:
         return _tos;
     }
 
+    bool &is_finished() { return _finished; }
+
 private:
     IpAddress _src_addr;
     IpAddress _dst_addr;
-    std::uint32_t _pkt_cnt = 0;
-    std::size_t _bytes = 0;
+    std::uint32_t _pkt_cnt = 1;
+    std::size_t _bytes;
     std::chrono::system_clock::time_point _first;
     std::chrono::system_clock::time_point _last;
-    std::uint16_t _src_port = 0;
-    std::uint16_t _dst_port = 0;
-    std::uint8_t _tcp_flags = 0;
-    IpProtocol _protocol{};
-    std::uint8_t _tos = 0;
+    std::uint16_t _src_port;
+    std::uint16_t _dst_port;
+    std::uint8_t _tcp_flags;
+    IpProtocol _protocol;
+    std::uint8_t _tos;
+
+    bool _finished;
 };
 
 } // namespace p2np

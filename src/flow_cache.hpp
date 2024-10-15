@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <queue>
 #include <unordered_map>
+#include <vector>
 
 #include "flow.hpp"
 #include "flow_key.hpp"
@@ -14,8 +17,12 @@ public:
 
     void add(const Packet &pkt);
 
+    std::vector<Flow> exported(std::chrono::system_clock::time_point now);
+
 private:
-    std::unordered_map<FlowKey, Flow> _cache;
+    std::unordered_map<FlowKey, Flow *> _cache;
+    std::queue<std::pair<FlowKey, std::unique_ptr<Flow>>> _flows;
+    std::vector<Flow> _export_q;
     /// @brief Duration since last packet after which the flow is considered
     /// inactive.
     std::chrono::system_clock::time_point::duration _inactive_timeout;
