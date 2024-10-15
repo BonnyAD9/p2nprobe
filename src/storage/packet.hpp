@@ -7,11 +7,11 @@
 
 #include <sys/time.h>
 
-#include "ip_address.hpp"
-#include "ip_protocol.hpp"
-#include "time.hpp"
+#include "../ip_address.hpp"
+#include "../ip_protocol.hpp"
+#include "../time.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 /// @brief Holds data about packet.
 struct Packet {
@@ -42,4 +42,4 @@ struct Packet {
     std::span<const char> payload;
 };
 
-} // namespace p2np
+} // namespace p2np::storage

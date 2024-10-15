@@ -37,7 +37,7 @@ struct __attribute__((packed)) TcpHeader {
     std::uint16_t urgent_pointer_be;
 };
 
-bool tcp(Packet &pkt, std::span<const char> data) {
+bool tcp(storage::Packet &pkt, std::span<const char> data) {
     if (data.size() < sizeof(TcpHeader)) {
         std::cerr << "TCP header doesn't fit the data size.\n";
         return false;

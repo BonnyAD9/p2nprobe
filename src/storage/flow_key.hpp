@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ip_address.hpp"
-#include "ip_protocol.hpp"
+#include "../ip_address.hpp"
+#include "../ip_protocol.hpp"
 #include "packet.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 /// @brief Hashable flow key.
 struct __attribute__((packed)) FlowKey {
@@ -29,10 +29,10 @@ struct __attribute__((packed)) FlowKey {
     std::uint16_t pad = 0;
 };
 
-} // namespace p2np
+} // namespace p2np::storage
 
-template<> struct std::hash<p2np::FlowKey> {
-    std::size_t operator()(const p2np::FlowKey &key) const noexcept {
+template<> struct std::hash<p2np::storage::FlowKey> {
+    std::size_t operator()(const p2np::storage::FlowKey &key) const noexcept {
         auto data = reinterpret_cast<const char *>(&key);
         return std::hash<std::string_view>()({ data, sizeof(key) });
     }

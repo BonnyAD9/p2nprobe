@@ -5,7 +5,7 @@
 
 #include <pcap/pcap.h>
 
-#include "ip_address.hpp"
+#include "../ip_address.hpp"
 
 namespace p2np::pcap {
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ip_address.hpp"
-#include "ip_protocol.hpp"
+#include "../ip_address.hpp"
+#include "../ip_protocol.hpp"
+#include "../time.hpp"
 #include "packet.hpp"
-#include "time.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 /// @brief Unidirectional flow.
 class Flow {
@@ -106,4 +106,4 @@ private:
     bool _finished;
 };
 
-} // namespace p2np
+} // namespace p2np::storage

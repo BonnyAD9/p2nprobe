@@ -1,8 +1,8 @@
 #include "flow_cache.hpp"
 
-#include "time.hpp"
+#include "../time.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 void FlowCache::add(const Packet &pkt) {
     auto &flow = _cache[pkt];
@@ -51,4 +51,4 @@ std::vector<Flow> FlowCache::drain() {
     return move_queue();
 }
 
-} // namespace p2np
+} // namespace p2np::storage

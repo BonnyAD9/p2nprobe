@@ -6,8 +6,9 @@ namespace p2np {
 
 void Pipeline::run() {
     _exporter->start();
-    for (auto code = _src.next(); code != NextCode::END; code = _src.next()) {
-        if (code != NextCode::SUCCESS) {
+    for (auto code = _src.next(); code != pcap::NextCode::END;
+         code = _src.next()) {
+        if (code != pcap::NextCode::SUCCESS) {
             continue;
         }
         process(_src.packet());
@@ -20,7 +21,7 @@ void Pipeline::run() {
               << "Avg size     : " << (total_size() / total_packets()) << '\n';
 }
 
-void Pipeline::process(Packet &pkt) {
+void Pipeline::process(storage::Packet &pkt) {
     if (!pkt.parse()) {
         return;
     }

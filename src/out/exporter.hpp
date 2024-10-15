@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "flow.hpp"
+#include "../storage/flow.hpp"
 
-namespace p2np {
+namespace p2np::out {
 
 /// @brief Exporter for flows.
 class Exporter {
@@ -14,7 +14,7 @@ public:
 
     /// @brief Export the given flows.
     /// @param flows
-    virtual void send(std::vector<Flow> flows) = 0;
+    virtual void send(std::vector<storage::Flow> flows) = 0;
 
     /// @brief Stop the exporter.
     virtual void stop() = 0;
@@ -22,4 +22,4 @@ public:
     virtual ~Exporter() = default;
 };
 
-} // namespace p2np
+} // namespace p2np::out

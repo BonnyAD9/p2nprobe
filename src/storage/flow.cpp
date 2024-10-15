@@ -1,6 +1,6 @@
 #include "flow.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 Flow::Flow(const Packet &pkt)
     : _src_addr(pkt.src_address),
@@ -21,4 +21,4 @@ void Flow::add(const Packet &pkt) {
     _tcp_flags |= pkt.tcp_flags;
 }
 
-} // namespace p2np
+} // namespace p2np::storage

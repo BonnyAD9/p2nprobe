@@ -5,11 +5,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../time.hpp"
 #include "flow.hpp"
 #include "flow_key.hpp"
-#include "time.hpp"
 
-namespace p2np {
+namespace p2np::storage {
 
 class FlowCache {
 public:
@@ -50,4 +50,4 @@ private:
     Duration _active_timeout;
 };
 
-} // namespace p2np
+} // namespace p2np::storage

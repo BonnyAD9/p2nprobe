@@ -1,18 +1,19 @@
-#include "pcap_src.hpp"
+#include "source.hpp"
 
 #include <chrono>
 #include <iostream>
 
-#include "time.hpp"
+#include "../time.hpp"
 
-namespace p2np {
+namespace p2np::pcap {
 
 Instant timeval_to_chrono(timeval t);
 
-PcapSrc::PcapSrc(const std::string &pcap_file)
-    : _packet(new Packet()), _pcap(pcap::open_offline(pcap_file.c_str())) { }
+Source::Source(const std::string &pcap_file)
+    : _packet(new storage::Packet()),
+      _pcap(pcap::open_offline(pcap_file.c_str())) { }
 
-NextCode PcapSrc::next() noexcept {
+NextCode Source::next() noexcept {
     using namespace std::chrono;
 
     pcap_pkthdr *header;
@@ -47,4 +48,4 @@ Instant timeval_to_chrono(timeval t) {
     ));
 }
 
-} // namespace p2np
+} // namespace p2np::pcap

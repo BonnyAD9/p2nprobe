@@ -45,7 +45,7 @@ struct __attribute__((packed)) IPv4Hdr {
     std::uint32_t dst_address;
 };
 
-bool ipv4(Packet &pkt, std::span<const char> data) {
+bool ipv4(storage::Packet &pkt, std::span<const char> data) {
     if (data.size() < sizeof(IPv4Hdr)) {
         std::cerr
             << "error: Packet type is ipv4 but it doesn't fit ipv4 header.\n";

@@ -1,16 +1,16 @@
-#include "text_exporter.hpp"
+#include "text.hpp"
 
 #include <iostream>
 
-namespace p2np {
+namespace p2np::out {
 
-void TextExporter::send(std::vector<Flow> flows) {
+void Text::send(std::vector<storage::Flow> flows) {
     for (auto &flow : flows) {
         send(flow);
     }
 }
 
-void TextExporter::send(const Flow &flow) {
+void Text::send(const storage::Flow &flow) {
     std::cout << flow.src_addr() << ':' << flow.src_port() << "->"
               << flow.dst_addr() << ':' << flow.dst_port() << ' '
               << flow.pkt_cnt() << '@' << flow.bytes() << " [" << flow.first()
@@ -18,4 +18,4 @@ void TextExporter::send(const Flow &flow) {
               << (int)flow.tos() << '\n';
 }
 
-} // namespace p2np
+} // namespace p2np::out

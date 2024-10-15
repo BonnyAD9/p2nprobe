@@ -3,10 +3,10 @@
 #include <cstddef>
 #include <memory>
 
-#include "exporter.hpp"
-#include "flow_cache.hpp"
-#include "packet.hpp"
-#include "pcap_src.hpp"
+#include "out/exporter.hpp"
+#include "pcap/source.hpp"
+#include "storage/flow_cache.hpp"
+#include "storage/packet.hpp"
 
 namespace p2np {
 
@@ -19,8 +19,8 @@ public:
     /// @param active_timeout Active timeout for flows.
     /// @param inactive_timeout Inactive timeout for flows.
     Pipeline(
-        PcapSrc src,
-        std::unique_ptr<Exporter> exporter,
+        pcap::Source src,
+        std::unique_ptr<out::Exporter> exporter,
         Duration active_timeout,
         Duration inactive_timeout
     )
@@ -45,14 +45,14 @@ public:
     }
 
 private:
-    void process(Packet &pkt);
+    void process(storage::Packet &pkt);
 
     std::size_t _total_packets = 0;
     std::size_t _total_size = 0;
-    FlowCache _flows;
-    PcapSrc _src;
+    storage::FlowCache _flows;
+    pcap::Source _src;
 
-    std::unique_ptr<Exporter> _exporter;
+    std::unique_ptr<out::Exporter> _exporter;
 };
 
 } // namespace p2np

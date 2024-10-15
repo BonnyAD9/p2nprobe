@@ -22,7 +22,7 @@ struct __attribute__((packed)) EthHeader {
     EthType type;
 };
 
-bool ethernet(Packet &pkt, std::span<const char> data) {
+bool ethernet(storage::Packet &pkt, std::span<const char> data) {
     if (data.size() < sizeof(EthHeader)) {
         std::cerr
             << "error: Packet data is too small to fit ethernet header.`n";

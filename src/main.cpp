@@ -2,10 +2,10 @@
 #include <iostream>
 
 #include "args.hpp"
-#include "pcap.hpp"
-#include "pcap_src.hpp"
+#include "out/text.hpp"
+#include "pcap/pcap.hpp"
+#include "pcap/source.hpp"
 #include "pipeline.hpp"
-#include "text_exporter.hpp"
 
 namespace p2np {
 
@@ -31,7 +31,7 @@ int start(int argc, char **argv) {
 
     Pipeline pipeline(
         { args.pcap_file_path() },
-        std::unique_ptr<Exporter>(new TextExporter()),
+        std::unique_ptr<out::Exporter>(new out::Text()),
         std::chrono::duration_cast<Duration>(args.active_timeout()),
         std::chrono::duration_cast<Duration>(args.inactive_timeout())
     );
