@@ -1,7 +1,7 @@
 #include <array>
 #include <iostream>
 
-#include "endian.hpp"
+#include "../endian.hpp"
 #include "parsers.hpp"
 
 namespace p2np::parsers {
@@ -11,7 +11,7 @@ enum class EthType : std::uint16_t {
 };
 
 inline EthType from_be(EthType v) {
-    return static_cast<EthType>(from_be(static_cast<std::uint16_t>(v)));
+    return static_cast<EthType>(p2np::from_be(static_cast<std::uint16_t>(v)));
 }
 
 constexpr std::size_t MAC_BYTES = 6;

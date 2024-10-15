@@ -1,7 +1,7 @@
 #include <iostream>
 
+#include "../endian.hpp"
 #include "../ip_protocol.hpp"
-#include "endian.hpp"
 #include "parsers.hpp"
 
 namespace p2np::parsers {
@@ -12,11 +12,6 @@ struct __attribute__((packed)) IPv4Hdr {
     [[nodiscard]]
     unsigned ihl() const {
         return (version_and_ihl & IHL_MASK) * 4;
-    }
-    /// @brief Length including the header in bytes.
-    [[nodiscard]]
-    std::uint16_t length() const {
-        return from_be(length_be);
     }
 
     ///  0 1 2 3 4 5 6 7
@@ -29,18 +24,17 @@ struct __attribute__((packed)) IPv4Hdr {
     /// | DSCP      | E |
     /// +-----------+---+
     std::uint8_t dscp_and_ecn;
-    /// @brief Header length in 32bit (4byte) words.
     /// @brief Length including the header in bytes.
-    std::uint16_t length_be;
+    Be<std::uint16_t> length;
     std::uint16_t identification_be;
     ///  0 1 2 3 4 5 6 7 8 9 A B C D E F
     /// +-----+-------------------------+
     /// | Fl. | Fragment offset         |
     /// +-----+-------------------------+
-    std::uint16_t flags_and_fragment_offset_be;
+    Be<std::uint16_t> flags_and_fragment_offset;
     std::uint8_t ttl;
     IpProtocol protocol;
-    std::uint16_t checksum_be;
+    Be<std::uint16_t> checksum;
     std::uint32_t src_address;
     std::uint32_t dst_address;
 };
@@ -53,7 +47,7 @@ bool ipv4(storage::Packet &pkt, std::span<const char> data) {
     }
 
     auto header = reinterpret_cast<const IPv4Hdr *>(data.data());
-    if (data.size() < header->length()) {
+    if (data.size() < header->length) {
         std::cerr << "warning: ipv4 length doesn't match the data length.\n";
     }
 
