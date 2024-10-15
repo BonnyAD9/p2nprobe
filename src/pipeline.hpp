@@ -1,19 +1,35 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 
+#include "exporter.hpp"
+#include "flow_cache.hpp"
 #include "packet.hpp"
+#include "pcap_src.hpp"
 
 namespace p2np {
 
 /// @brief Pipeline for parsing packets.
 class Pipeline {
 public:
-    Pipeline() = default;
+    /// @brief Create new pipeline.
+    /// @param src Packet source.
+    /// @param exporter Exporter for flows.
+    /// @param active_timeout Active timeout for flows.
+    /// @param inactive_timeout Inactive timeout for flows.
+    Pipeline(
+        PcapSrc src,
+        std::unique_ptr<Exporter> exporter,
+        Duration active_timeout,
+        Duration inactive_timeout
+    )
+        : _flows(active_timeout, inactive_timeout),
+          _src(std::move(src)),
+          _exporter(std::move(exporter)) { }
 
-    /// @brief Process the next packet.
-    /// @param pkt Packet to process.
-    void process(Packet &pkt);
+    /// @brief Run the pipeline.
+    void run();
 
     /// @brief Gets the total numbe of packets that were processed in this
     /// pipeline.
@@ -29,8 +45,14 @@ public:
     }
 
 private:
+    void process(Packet &pkt);
+
     std::size_t _total_packets = 0;
     std::size_t _total_size = 0;
+    FlowCache _flows;
+    PcapSrc _src;
+
+    std::unique_ptr<Exporter> _exporter;
 };
 
 } // namespace p2np

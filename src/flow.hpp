@@ -52,7 +52,7 @@ public:
     /// @brief Get time of the last packet in the flow.
     [[nodiscard]]
     Instant last() const {
-        return _first;
+        return _last;
     }
 
     /// @brief Get the source port of the flow.

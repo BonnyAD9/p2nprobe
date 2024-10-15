@@ -4,6 +4,22 @@
 
 namespace p2np {
 
+void Pipeline::run() {
+    _exporter->start();
+    for (auto code = _src.next(); code != NextCode::END; code = _src.next()) {
+        if (code != NextCode::SUCCESS) {
+            continue;
+        }
+        process(_src.packet());
+    }
+    _exporter->send(_flows.drain());
+    _exporter->stop();
+
+    std::cout << "Total packets: " << total_packets() << '\n'
+              << "Total size   : " << total_size() << '\n'
+              << "Avg size     : " << (total_size() / total_packets()) << '\n';
+}
+
 void Pipeline::process(Packet &pkt) {
     if (!pkt.parse()) {
         return;
@@ -11,13 +27,8 @@ void Pipeline::process(Packet &pkt) {
 
     _total_size += pkt.data.size();
     ++_total_packets;
-
-    std::cout << "time='" << pkt.timestamp << "' src='" << pkt.src_address
-              << ':' << pkt.src_port << "' dst='" << pkt.dst_address << ':'
-              << pkt.dst_port << "' proto='"
-              << static_cast<int>(pkt.ip_protocol) << "' tos='"
-              << static_cast<int>(pkt.ip_tos) << "' flags='"
-              << static_cast<int>(pkt.tcp_flags) << "'\n";
+    _flows.add(pkt);
+    _exporter->send(_flows.exported(pkt.timestamp));
 }
 
 } // namespace p2np

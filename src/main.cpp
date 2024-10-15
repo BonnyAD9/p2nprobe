@@ -5,6 +5,7 @@
 #include "pcap.hpp"
 #include "pcap_src.hpp"
 #include "pipeline.hpp"
+#include "text_exporter.hpp"
 
 namespace p2np {
 
@@ -27,21 +28,15 @@ int start(int argc, char **argv) {
     const p2np::Args args({ argv, static_cast<std::size_t>(argc) });
 
     pcap::init();
-    PcapSrc src(args.pcap_file_path());
 
-    Pipeline pipeline;
+    Pipeline pipeline(
+        { args.pcap_file_path() },
+        std::unique_ptr<Exporter>(new TextExporter()),
+        std::chrono::duration_cast<Duration>(args.active_timeout()),
+        std::chrono::duration_cast<Duration>(args.inactive_timeout())
+    );
 
-    for (auto code = src.next(); code != NextCode::END; code = src.next()) {
-        if (code != NextCode::SUCCESS) {
-            continue;
-        }
-        pipeline.process(src.packet());
-    }
-
-    std::cout << "Total packets: " << pipeline.total_packets() << '\n'
-              << "Total size   : " << pipeline.total_size() << '\n'
-              << "Avg size     : "
-              << (pipeline.total_size() / pipeline.total_packets()) << '\n';
+    pipeline.run();
 
     return EXIT_SUCCESS;
 }

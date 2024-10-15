@@ -24,16 +24,31 @@ void FlowCache::add(const Packet &pkt) {
 }
 
 std::vector<Flow> FlowCache::exported(Instant now) {
-    std::vector<Flow> res;
-    std::swap(res, _export_q);
     while (!_flows.empty() &&
            now - _flows.front().second->first() > _active_timeout) {
-        auto [key, flow] = std::move(_flows.front());
-        _flows.pop();
-        _cache.erase(key);
-        res.push_back(*flow);
+        pop_flow();
     }
+    return move_queue();
+}
+
+void FlowCache::pop_flow() {
+    auto [key, flow] = std::move(_flows.front());
+    _flows.pop();
+    _cache.erase(key);
+    _export_q.push_back(*flow);
+}
+
+std::vector<Flow> FlowCache::move_queue() {
+    std::vector<Flow> res;
+    std::swap(res, _export_q);
     return res;
+}
+
+std::vector<Flow> FlowCache::drain() {
+    while (!_flows.empty()) {
+        pop_flow();
+    }
+    return move_queue();
 }
 
 } // namespace p2np
