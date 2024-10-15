@@ -7,17 +7,21 @@
 
 #include "flow.hpp"
 #include "flow_key.hpp"
+#include "time.hpp"
 
 namespace p2np {
 
 class FlowCache {
 public:
-    FlowCache() = default;
     explicit FlowCache(const FlowCache &) = default;
+
+    FlowCache(Duration active_timeout, Duration inactive_timeout)
+        : _inactive_timeout(inactive_timeout),
+          _active_timeout(active_timeout) { }
 
     void add(const Packet &pkt);
 
-    std::vector<Flow> exported(std::chrono::system_clock::time_point now);
+    std::vector<Flow> exported(Instant now);
 
 private:
     std::unordered_map<FlowKey, Flow *> _cache;
@@ -25,10 +29,10 @@ private:
     std::vector<Flow> _export_q;
     /// @brief Duration since last packet after which the flow is considered
     /// inactive.
-    std::chrono::system_clock::time_point::duration _inactive_timeout;
+    Duration _inactive_timeout;
     /// @brief Duration since the first packet after which the flow is
     /// exported.
-    std::chrono::system_clock::time_point::duration _active_timeout;
+    Duration _active_timeout;
 };
 
 } // namespace p2np

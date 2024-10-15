@@ -9,6 +9,7 @@
 
 #include "ip_address.hpp"
 #include "ip_protocol.hpp"
+#include "time.hpp"
 
 namespace p2np {
 
@@ -34,9 +35,7 @@ struct Packet {
     std::uint8_t tcp_flags = 0;
 
     /// @brief Timestamp of the packet.
-    std::chrono::system_clock::time_point timestamp{
-        std::chrono::system_clock::duration(0)
-    };
+    Instant timestamp;
     /// @brief Data in this packet.
     std::span<const char> data;
     /// @brief TCP payload data.

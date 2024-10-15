@@ -3,9 +3,11 @@
 #include <chrono>
 #include <iostream>
 
+#include "time.hpp"
+
 namespace p2np {
 
-std::chrono::system_clock::time_point timeval_to_chrono(timeval t);
+Instant timeval_to_chrono(timeval t);
 
 PcapSrc::PcapSrc(const std::string &pcap_file)
     : _packet(new Packet()), _pcap(pcap::open_offline(pcap_file.c_str())) { }
@@ -39,10 +41,9 @@ NextCode PcapSrc::next() noexcept {
     }
 }
 
-std::chrono::system_clock::time_point timeval_to_chrono(timeval t) {
-    using namespace std::chrono;
-    return system_clock::time_point(duration_cast<system_clock::duration>(
-        seconds(t.tv_sec) + microseconds(t.tv_usec)
+Instant timeval_to_chrono(timeval t) {
+    return Instant(std::chrono::duration_cast<Duration>(
+        std::chrono::seconds(t.tv_sec) + std::chrono::microseconds(t.tv_usec)
     ));
 }
 

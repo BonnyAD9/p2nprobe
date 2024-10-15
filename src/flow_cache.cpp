@@ -1,5 +1,7 @@
 #include "flow_cache.hpp"
 
+#include "time.hpp"
+
 namespace p2np {
 
 void FlowCache::add(const Packet &pkt) {
@@ -21,8 +23,7 @@ void FlowCache::add(const Packet &pkt) {
     flow->add(pkt);
 }
 
-std::vector<Flow> FlowCache::exported(std::chrono::system_clock::time_point now
-) {
+std::vector<Flow> FlowCache::exported(Instant now) {
     std::vector<Flow> res;
     std::swap(res, _export_q);
     while (!_flows.empty() &&

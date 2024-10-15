@@ -1,10 +1,9 @@
 #pragma once
 
-#include <chrono>
-
 #include "ip_address.hpp"
 #include "ip_protocol.hpp"
 #include "packet.hpp"
+#include "time.hpp"
 
 namespace p2np {
 
@@ -46,13 +45,13 @@ public:
 
     /// @brief Get the time of the first packet in the flow.
     [[nodiscard]]
-    std::chrono::system_clock::time_point first() const {
+    Instant first() const {
         return _first;
     }
 
     /// @brief Get time of the last packet in the flow.
     [[nodiscard]]
-    std::chrono::system_clock::time_point last() const {
+    Instant last() const {
         return _first;
     }
 
@@ -96,8 +95,8 @@ private:
     IpAddress _dst_addr;
     std::uint32_t _pkt_cnt = 1;
     std::size_t _bytes;
-    std::chrono::system_clock::time_point _first;
-    std::chrono::system_clock::time_point _last;
+    Instant _first;
+    Instant _last;
     std::uint16_t _src_port;
     std::uint16_t _dst_port;
     std::uint8_t _tcp_flags;
