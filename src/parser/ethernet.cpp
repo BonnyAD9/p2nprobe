@@ -10,8 +10,9 @@ enum class EthType : std::uint16_t {
     IPV4 = 0x0800,
 };
 
-inline EthType from_be(EthType v) {
-    return static_cast<EthType>(p2np::from_be(static_cast<std::uint16_t>(v)));
+inline EthType endian_swap(EthType v) {
+    return static_cast<EthType>(p2np::endian_swap(static_cast<std::uint16_t>(v)
+    ));
 }
 
 constexpr std::size_t MAC_BYTES = 6;
@@ -19,7 +20,7 @@ constexpr std::size_t MAC_BYTES = 6;
 struct __attribute__((packed)) EthHeader {
     std::array<char, MAC_BYTES> dst_mac;
     std::array<char, MAC_BYTES> src_mac;
-    EthType type;
+    Be<EthType> type;
 };
 
 bool ethernet(storage::Packet &pkt, std::span<const char> data) {
@@ -34,7 +35,7 @@ bool ethernet(storage::Packet &pkt, std::span<const char> data) {
 
     pkt.l3_bytes = data.size();
 
-    switch (from_be(header->type)) {
+    switch (header->type) {
     case EthType::IPV4:
         return ipv4(pkt, data);
     default:
