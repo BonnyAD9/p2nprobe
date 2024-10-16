@@ -7,13 +7,14 @@ namespace p2np {
 /// @brief Uniquely owned file descriptor.
 class UniqueFd {
 public:
-    UniqueFd(const UniqueFd &) = delete;
-    UniqueFd &operator=(const UniqueFd &) = delete;
-
     UniqueFd() = default;
+    UniqueFd(const UniqueFd &) = delete;
+
+    UniqueFd &operator=(const UniqueFd &) = delete;
+    UniqueFd &operator=(UniqueFd &&other) = default;
+
     bool operator==(const UniqueFd &) const = default;
     bool operator!=(const UniqueFd &) const = default;
-    UniqueFd &operator=(UniqueFd &&other) = default;
 
     /// @brief Move a file descriptor.
     UniqueFd(UniqueFd &&other) noexcept : _fd(other.release()) { }
