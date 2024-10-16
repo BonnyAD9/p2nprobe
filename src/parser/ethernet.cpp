@@ -11,8 +11,7 @@ enum class EthType : std::uint16_t {
 };
 
 inline EthType endian_swap(EthType v) {
-    return static_cast<EthType>(p2np::endian_swap(static_cast<std::uint16_t>(v)
-    ));
+    return EthType(p2np::endian_swap(std::uint16_t(v)));
 }
 
 constexpr std::size_t MAC_BYTES = 6;

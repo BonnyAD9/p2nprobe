@@ -11,6 +11,7 @@
 
 namespace p2np::storage {
 
+/// @brief Cache for flows with timeouts.
 class FlowCache {
 public:
     explicit FlowCache(const FlowCache &) = default;

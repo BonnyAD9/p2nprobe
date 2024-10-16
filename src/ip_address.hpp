@@ -7,6 +7,7 @@
 
 namespace p2np {
 
+/// @brief IPv4 address. Can be printed.
 struct __attribute__((packed)) IpAddress {
 public:
     IpAddress() = default;

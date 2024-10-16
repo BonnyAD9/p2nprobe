@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "args.hpp"
-#include "out/text.hpp"
+#include "out/net_flow_v5.hpp"
 #include "pcap/pcap.hpp"
 #include "pcap/source.hpp"
 #include "pipeline.hpp"
@@ -25,13 +25,16 @@ int main(int argc, char **argv) {
 namespace p2np {
 
 int start(int argc, char **argv) {
-    const p2np::Args args({ argv, static_cast<std::size_t>(argc) });
+    const p2np::Args args({ argv, std::size_t(argc) });
 
     pcap::init();
+    init_uptime();
+
+    UdpClient client(args.host_address(), args.host_port());
 
     Pipeline pipeline(
         { args.pcap_file_path() },
-        std::unique_ptr<out::Exporter>(new out::Text()),
+        std::unique_ptr<out::Exporter>(new out::NetFlowV5(std::move(client))),
         std::chrono::duration_cast<Duration>(args.active_timeout()),
         std::chrono::duration_cast<Duration>(args.inactive_timeout())
     );

@@ -88,8 +88,6 @@ public:
         return _tos;
     }
 
-    bool &is_finished() { return _finished; }
-
 private:
     IpAddress _src_addr;
     IpAddress _dst_addr;
@@ -102,8 +100,6 @@ private:
     std::uint8_t _tcp_flags;
     IpProtocol _protocol;
     std::uint8_t _tos;
-
-    bool _finished;
 };
 
 } // namespace p2np::storage

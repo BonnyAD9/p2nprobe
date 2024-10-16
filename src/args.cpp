@@ -54,9 +54,7 @@ Args::Args(std::span<char *> args) {
 }
 
 void Args::parse_address(std::string value) {
-    auto idx = static_cast<std::size_t>(
-        std::ranges::find(value, ':') - value.begin()
-    );
+    auto idx = std::size_t(std::ranges::find(value, ':') - value.begin());
     if (idx == value.size()) {
         if (_pcap_file_path.empty()) {
             // Host address and pcap file are in different order

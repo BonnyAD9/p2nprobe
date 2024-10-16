@@ -7,6 +7,7 @@
 
 namespace p2np {
 
+/// @brief Class for parsing command line arguments.
 class Args {
 public:
     /// @brief Parse the arguments.

@@ -8,6 +8,7 @@ namespace p2np::pcap {
 
 namespace destroy {
 
+/// @brief Deallocator for `pcap_t`
 class PcapT {
 public:
     void operator()(void *ptr) { pcap_close(reinterpret_cast<pcap_t *>(ptr)); }

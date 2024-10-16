@@ -5,7 +5,7 @@
 
 namespace p2np {
 
-UdpClient::UdpClient(std::string address, std::uint16_t port) {
+UdpClient::UdpClient(const std::string &address, std::uint16_t port) {
     addrinfo *res;
     const int ret = getaddrinfo(
         address.c_str(), std::to_string(port).c_str(), nullptr, &res
@@ -20,10 +20,10 @@ UdpClient::UdpClient(std::string address, std::uint16_t port) {
 
     _address = std::vector<char>(_addrlen);
     auto addr_src = reinterpret_cast<const char *>(res->ai_addr);
-    std::copy(addr_src, addr_src + _addrlen, address.data());
+    std::copy(addr_src, addr_src + _addrlen, _address.data());
 
-    freeaddrinfo(res);
     _fd = socket(res->ai_family, SOCK_DGRAM, 0);
+    freeaddrinfo(res);
 
     if (!_fd) {
         using std::string_literals::operator""s;
