@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "pipeline.hpp"
 
 #include <iostream>

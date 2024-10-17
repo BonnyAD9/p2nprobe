@@ -1,0 +1,7 @@
+p2nprobe
+
+Author: Jakub Antonín Štigler (xstigl00)
+Date: 17.10 2024
+
+p2nprobe is a simple probe for reading unidirectional ipv4 tcp flows and
+sending them using NetFlow v5 format over UDP.

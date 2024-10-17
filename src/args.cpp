@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "args.hpp"
 
 #include <iterator>

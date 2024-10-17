@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "record_parser.hpp"
 
 namespace n2tc {

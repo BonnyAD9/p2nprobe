@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "packet.hpp"
 
 #include "../parser/parsers.hpp"

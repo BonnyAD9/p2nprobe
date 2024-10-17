@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include <iostream>
 
 #include "record_printer.hpp"

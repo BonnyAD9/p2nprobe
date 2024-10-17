@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #pragma once
 
 #include "../src/out/net_flow_v5.hpp"

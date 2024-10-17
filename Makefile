@@ -1,7 +1,9 @@
+# Author: Jakub Antonín Štigler (xstigl00)
+
 BUILD_TYPE=Debug
 PARALEL=-j $(shell nproc)
 PROBE=src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
-CAP=n2tcap/*.hpp n2tcap/*.cpp # n2tcap/**/*.hpp n2tcap/**/*.cpp
+CAP=n2tcap/*.hpp n2tcap/*.cpp
 ALL=$(PROBE) $(CAP)
 
 .PHONY: build
@@ -37,3 +39,7 @@ check: fmt cppcheck tidy
 .PHONY: clean
 clean:
 	-cd build && $(MAKE) clean
+
+.PHONY: submit
+submit:
+

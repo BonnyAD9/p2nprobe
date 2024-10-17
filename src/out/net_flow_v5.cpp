@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "net_flow_v5.hpp"
 
 #include "../time.hpp"

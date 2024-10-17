@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "udp_listener.hpp"
 
 #include <cstring>

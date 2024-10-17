@@ -1,3 +1,5 @@
+/// @author Jakub Antonín Štigler (xstigl00)
+
 #include "flow_cache.hpp"
 
 #include "../time.hpp"
