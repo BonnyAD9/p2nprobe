@@ -52,7 +52,4 @@ tar cf $LOGIN.tar -- *
 cd ..
 
 mv $LOGIN/$LOGIN.tar $LOGIN.tar
-
 rm -r $LOGIN
-
-# rm $LOGIN
