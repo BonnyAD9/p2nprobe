@@ -7,11 +7,10 @@ namespace p2np {
 /// @brief Uniquely owned file descriptor.
 class UniqueFd {
 public:
-    UniqueFd() = default;
     UniqueFd(const UniqueFd &) = delete;
-
     UniqueFd &operator=(const UniqueFd &) = delete;
-    UniqueFd &operator=(UniqueFd &&other) = default;
+
+    UniqueFd() = default;
 
     bool operator==(const UniqueFd &) const = default;
     bool operator!=(const UniqueFd &) const = default;
@@ -22,8 +21,13 @@ public:
     /// @brief Create new file descriptor.
     UniqueFd(int fd) : _fd(fd) { }
 
+    UniqueFd &operator=(UniqueFd &&other) noexcept {
+        swap(other);
+        return *this;
+    }
+
     /// @brief Check if the file descriptor is valid.
-    explicit operator bool() const { return _fd == -1; }
+    explicit operator bool() const { return _fd != -1; }
 
     /// @brief Get the underlaying file descriptor.
     /// @return The underlaying file descriptor.
@@ -38,6 +42,9 @@ public:
         _fd = -1;
         return res;
     }
+
+    /// @brief Swaps the file descriptors.
+    void swap(UniqueFd &other) noexcept { std::swap(_fd, other._fd); }
 
     ~UniqueFd() {
         if (*this) {

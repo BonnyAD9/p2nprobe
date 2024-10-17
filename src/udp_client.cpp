@@ -1,6 +1,7 @@
 #include "udp_client.hpp"
 
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 namespace p2np {
@@ -34,7 +35,16 @@ UdpClient::UdpClient(const std::string &address, std::uint16_t port) {
 }
 
 void UdpClient::send(std::span<const char> data) const {
-    sendto(_fd.get(), data.data(), data.size(), 0, address(), _addrlen);
+    auto r =
+        sendto(_fd.get(), data.data(), data.size(), 0, address(), _addrlen);
+    if (r < 0) {
+        using std::string_literals::operator""s;
+        std::array<char, 256> buf;
+        const char *msg = strerror_r(errno, buf.data(), 256);
+        ;
+        std::cerr << "Failed to send data on " << _fd.get() << ": " << msg
+                  << '\n';
+    }
 }
 
 const sockaddr *UdpClient::address() const {

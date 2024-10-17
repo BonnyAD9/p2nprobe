@@ -12,7 +12,7 @@ namespace p2np::out {
 
 /// @brief Header for NetFlow v5
 struct __attribute__((packed)) NetFlowV5Header {
-    std::uint8_t version;
+    Be<std::uint16_t> version;
     Be<std::uint16_t> count;
     /// @brief System uptime in milliseconds
     Be<std::uint32_t> sys_uptime;
@@ -58,7 +58,7 @@ public:
     /// @brief The maximum mtu in bytes.
     static constexpr std::size_t MAX_MTU = 1463;
     /// @brief The NetFlow version.
-    static constexpr std::uint8_t VERSION = 5;
+    static constexpr std::uint16_t VERSION = 5;
 
     /// @brief Create new NetFlow exporter.
     /// @param client UDP client to send the data.
