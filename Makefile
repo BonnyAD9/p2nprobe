@@ -1,5 +1,8 @@
 BUILD_TYPE=Debug
 PARALEL=-j $(shell nproc)
+PROBE=src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
+CAP=n2tcap/*.hpp n2tcap/*.cpp # n2tcap/**/*.hpp n2tcap/**/*.cpp
+ALL=$(PROBE) $(CAP)
 
 .PHONY: build
 build:
@@ -16,16 +19,17 @@ run: build
 
 .PHONY: fmt
 fmt:
-	clang-format -i src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
+	clang-format -i $(ALL)
 
 .PHONY: cppcheck
 cppcheck:
-	cppcheck --check-level=exhaustive src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
+	cppcheck --check-level=exhaustive $(ALL)
 
 .PHONY: tidy
 tidy: build
 	run-clang-tidy $(PARALEL) -use-color -quiet -p build \
-		-header-filter=src/ 'src/.*\.cpp' 'src/.*\.hpp'
+		-header-filter=src/ -header-filter=n2tcap/ \
+		'src/.*\.cpp' 'src/.*\.hpp' 'n2tcap/.*\.cpp' 'n2tcap/.*\.hpp'
 
 .PHONY: tidy
 check: fmt cppcheck tidy

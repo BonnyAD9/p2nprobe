@@ -13,7 +13,7 @@ static inline std::uint16_t endian_swap(std::uint16_t v) {
 /// @brief Swap the byte order for the given value.
 static inline std::uint32_t endian_swap(std::uint32_t v) {
     constexpr std::uint32_t MASK = 0xff00ff00;
-    v = ((v & MASK) >> 8) | ((v >> 8) & MASK);
+    v = ((v & MASK) >> 8) | ((v << 8) & MASK);
     return (v >> 16) | (v << 16);
 }
 
