@@ -6,6 +6,9 @@ PROBE=src/*.hpp src/*.cpp src/**/*.hpp src/**/*.cpp
 CAP=n2tcap/*.hpp n2tcap/*.cpp
 ALL=$(PROBE) $(CAP)
 
+.PHONY: all
+all: build doc
+
 .PHONY: build
 build:
 	if [ ! -f build/Makefile ]; then \
@@ -14,6 +17,10 @@ build:
 			&& cmake .. -DCMAKE_BUILD_TYPE=$(BUILD_TYPE); \
 	fi
 	cd build && $(MAKE) $(PARALEL)
+
+.PHONY: doc
+doc:
+	cd doc && $(MAKE)
 
 .PHONY: run
 run: build
@@ -39,7 +46,4 @@ check: fmt cppcheck tidy
 .PHONY: clean
 clean:
 	-cd build && $(MAKE) clean
-
-.PHONY: submit
-submit:
-
+	cd doc && $(MAKE) clean

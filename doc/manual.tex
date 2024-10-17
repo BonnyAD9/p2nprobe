@@ -1,0 +1,239 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[czech]{babel}
+
+\title{PCAP NetFlow v5 exportér}
+\author{Jakub Antonín Štigler (xstigl00)}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Úvod}
+Cílem projektu je vytvořit funkční sondu pro extrakci jednosměrných tokových
+dat z pcap souborů. Sonda je zaměřená pouze na TCP packety a exportuje pomoci
+UDP ve formátu NetFlow v5, což znamená že zpracovává jen packety přenášené
+pomocí IPv4, protože NetFlow v5 nepodporuje IPv6.
+
+Úkolem sondy je agregovat informace o packetech do toků a tyto informace poslat
+dál. Tok je síťová komunikace mezi konkrétními počítači kde posílané data spolu
+souvisí. Toky se od sebe navzájem rozlišují v tom které počítače si posílají
+informace (IP adresy), jaké aplikace spolu komunikují (porty) a tím že
+související data se posílají v blízké době. Toky můžou být jednosměrné nebo
+obousměrné. V obousměrných tocích se v toku shlukuje komunikace z obou stran,
+v jednosměrných pak je jen komunikace jedním směrem a toků je tím více. Formát
+NetFlow v5 podporuje jen jednosměrné toky, a proto p2nprobe také podporuje jen
+jednosměrné toky.
+
+\section{Návrh}
+Pro zjednodušení práce jsem se rozhodl obalovat různé části knihoven s C
+rozhraním (např. třída \verb|UniqueFd| pro zabalení deskriptoru).
+
+Dále jsem program rozdělil do několika částí/komponent pro řešení jednotlivých
+částí problému:
+\begin{itemize}
+    \item Zpracování argumentů (adresář \textit{src/cli/}).
+    \item Čtení pcap souborů (adresář \textit{src/pcap/}).
+    \item Parsování packetů. (adresář \textit{src/parser/}).
+    \item Agregace do toků a ukládání dat (adresář \textit{src/storage/}).
+    \item Export (adresář \textit{src/out/})
+\end{itemize}
+
+\section{Popis implementace}
+Projekt jsem se rozhodl implementovat v programovacím jazyce C++, protože už s
+ním mám zkušenosti, nabízí spoustu užitečných funkcí a je pro tento projekt
+vhodný i protože je kompilovaný a umožňuje tak zpracovávat toky na vysoké
+rychlosti.
+
+Pro sestavování využívám cmake.
+
+Využívám verze C++20, takže pro kompilaci je potřeba g++ s verzí minimálně 13.
+Projekt funguje i při kompilaci s clang++ 18. Aby kompilace na serveru merlin
+proběhla úspěšně, tak mám kompiler explicitně nastavený na \verb|g++-14.2|,
+protože jinak by se implicitně použil \verb|g++| s verzí 11.5.
+
+Při implementaci jsem se pro propagaci chyb rozhodl využít vyjímek.
+
+Vstupní funkce \verb|main| se nachází v souboru \textit{src/main.cpp}.
+
+Hlavní smyčka programu se odehrává v implementaci metody \verb|run| ve třídě
+\verb|Pipeline| (implementováno v souborech \textit{src/pipeline.hpp} a
+\textit{src/pipeline.cpp}). \verb|Pipeline| umožňuje použití různých způsobů
+exportování za pomocí rozhraní \verb|Exporter| (definováno v
+\textit{src/out/exporter.hpp}).
+
+\subsection{Zpracování vstupních argumentů}
+Vstupní argumenty se zpracovávají pomocí třídy \verb|Args| implementované v
+souborech \textit{src/cli/args.hpp} a \textit{src/cli/args.cpp}. Načtená data
+se s načítáním rovnou validují a případně se vavolá vyjímka s uživatelsky
+přívětivou chybovou hláškou.
+
+\subsection{Čtení pcap souborů}
+Pro čtení z pcap souborů využívám knihovny \textit{libpcap}. Část funkcionality
+jsem obalil do vlastních funkcí nebo tříd protože \textit{libpcap} má rozhraní
+v jazyce C a nevyužívá různých užitečných konstrukcí jazyka C++ jako třeba
+třídy, destruktory nebo vyjímky.
+
+Funkcionalitu knihovny jsem obalil v souborech které se nachází v adresáři
+\textit{src/pcap/}.
+
+Pro čtení packetů využívám funkce \verb|pcap_next_ex|, která vrací packety
+jeden po jednom a pak jsou postupně zpracovávány.
+
+\subsection{Parsování packetů}
+Data z přečteného packetu se uloží do struktury \verb|Packet|, která je
+definovaná v souboru \textit{src/storage/packet.hpp}. Čas zaznamenání packetu
+převádím do C++ reprezentace času protože standartní knihovna obsahuje spoustu
+užitečných funkcí pro práci s časem.
+
+Většina kódu pro parsování packetů se nachází v adresáři \textit{src/parser/}.
+Parsování různých vrstev (ethernet, ipv4, tcp) je rozděleno do různých souborů.
+Parsování většinou probíhá jen použitím \verb|reinterpret_cast| pro
+interpretaci dat jako struktura hlavičky daného protokolu. Data posílané přes
+internet mají většinou pořadí bytů big-endian, ale počítače pracují s pořadím
+little-endian. Proto je nutné tyto data převádět. Pro převod jsem vytvořil
+třídu \verb|Be| (implementovaná v souboru \textit{src/endian.hpp}), díky které
+jde informaci o jiném pořadí bytů zakódovat přímo do datového typu. Hodnota je
+pak automaticky převedena do správného pořadí bytů vždy když je potřeba s ní
+pracovat a není nutné na to už myslet.
+
+\subsubsection{Informace sbírané z packetů}
+\begin{itemize}
+    \item Počet bytů ve vrstvě L3.
+    \item Zdrojová a cílová IP adresa.
+    \item Protokol transportní vrstvy (vždy TCP, protože ostatní packety jsou
+          zahazovány).
+    \item TOS z IP vrstvy (Type Of Service).
+    \item Zdrojový a cílový port.
+    \item TCP příznaky.
+    \item Čas zachycení.
+\end{itemize}
+
+\subsection{Skládání packetů do toků}
+Packety jsou skládány do toků podle klíče složeného z klíčových informací které
+jsou v jednom toku vždy stejné. Jsou to informace:
+\begin{itemize}
+    \item Zdrojová a cílová adresa.
+    \item Zdrojový a cílový port.
+    \item Protokol (vždy TCP).
+    \item IP TOS (Type Of Service).
+\end{itemize}
+Klíč je definovaný v souboru \textit{src/storage/flow\_key.hpp}.
+
+Toky jsou shlukovány za pomocí hashovací tabulky \verb|std::unordered_map| ze
+standartní knihovny. Shlukování je implementováno ve třídě \verb|FlowCache|,
+která je v souborech \textit{src/storage/flow\_cache.hpp} a
+\textit{src/storage/flow\_cache.cpp}.
+
+Pro aktivní timeout se všechny toky také ukládají do fronty v pořadí ve kterém
+přišly. Po každém zpracovaném packetu se ze začátku fronty exportují všechny
+toky kterým vypršel aktivní timeout.
+
+Pasivní timeout je řešený vždy při přidávání packetu do existujícího toku.
+Pokud vypršel pasivní timeout, starý tok je exportován a je vytvořen nový.
+
+\subsubsection{Informace sbírané v tocích}
+Tok je definován v souboru \textit{src/storage/flow.hpp}. Obsahuje informace:
+\begin{itemize}
+    \item Zdrojová a cílová IP adresa.
+    \item Počet poslaných packetů.
+    \item Množství poslaných dat na vrstvě L3.
+    \item Čas zachycení prvního packetu v toku.
+    \item Čas zachycení posledního packetu v toku.
+    \item Zdrojový a cílový port.
+    \item Kumulativní OR TCP příznaků.
+    \item Protokol použitý v toku.
+    \item IP TOS (Type Of Service)
+\end{itemize}
+
+\subsection{Export do NetFlow v5}
+Export je z většiny implementovaný v adresáři \textit{src/out/}. Kromě exportu
+do NetFlow v5 je zde implementovaný i export do textu, který jsem využíval pro
+testovací účely.
+
+Export pro NetFlow v5 zastřešuje třída \verb|NetFlowV5| implementovaná v
+souborech \textit{src/out/net\_flow\_v5.hpp} a
+\textit{src/out/net\_flow\_v5.cpp}. Třída přijímá toky a čeká dokud až jich
+bude mít dostatek. Když má maximální počet toků co jde poslat najednou tak toky
+odešle za pomocí třídy \verb|UdpClient| implementované v souborech
+\textit{src/udp\_client.hpp} a \textit{src/udp\_client.cpp}.
+
+Data jsou převedena do NetFlow v5 pomocí struktur
+\verb|NetFlowV5Header| a \verb|NetFlowV5Record|. Zde se opět hodí třída
+\verb|Be| pro převod dat na big-endian.
+
+\subsubsection{UdpClient}
+\verb|UdpClient| je třída obalující práci se sokety. Dokáže za pomocí DNS
+vyhledat IP adresu serveru na který se posílají data, vytvořit socket a
+následně data odesílat.
+
+Pro správu deskriptoru pro soket jsem vytvořil třídu \verb|UniqueFd|
+implementovanou v souboru \textit{src/unique\_fd.hpp}.
+
+\section{Návod na použití}
+Pro vypsání stručné nápovědy se dá program spustit jako:
+\begin{verbatim}
+    p2nprobe -h
+\end{verbatim}
+
+Pro čtení pcap souboru a export se program spustí jako:
+\begin{verbatim}
+    p2nprobe <adresa>:<port> <pcap soubor> [-a <aktivní timeout>]
+             [-i <neaktivní timeout>]
+\end{verbatim}
+\verb|adresa| může být libovolná IPv4 nebo IPv6 adresa, nebo adresa která musí
+být přeložená pomocí DNS. Jedná se o adresu serveru na který budou pomocí UDP
+exportovány informace o tocích.
+
+\verb|port| je číslo v rozmezí 0 - 65535. Jde o port serveru na který se
+odesílají informace o tocích.
+
+\verb|aktivní timeout| je aktivní timeout v celých sekundách. Parametr není
+povinný a implicitně má hodnotu \verb|60|. Když uplyne tento čas od zachycení
+prvního packetu z toku, tak je tok exportován.
+
+\verb|neaktivní timeout| je neaktivní timeout v sekundích. Parametr není
+povinný a implicitně má hodnotu \verb|60|. Když by měl být packet přiřazen do
+toku, ale od posledního packetu v toku uplynula tato doba, tok je exportován
+a nový packet založí nový tok.
+
+Argumenty můžou být v libovolném pořadí.
+
+\subsection{Příklady použití}
+Zobrazení nápovědy:
+\begin{verbatim}
+    p2nprobe -h
+\end{verbatim}
+
+Export toků ze souboru \verb|capture.pcap| na adresu \verb|127.0.0.1| a port
+\verb|25565| s implicitními timeouty 60 s:
+\begin{verbatim}
+    p2nprobe 127.0.0.1:25565 capture.pcap
+\end{verbatim}
+
+Export toků ze souboru \verb|ipv4.pcap| na adresu \verb|localhost| a port
+\verb|25565| s aktivním timeoutem nastaveným na 300 s a neaktivním timeoutem
+implicitně nastaveným na 60 s.
+\begin{verbatim}
+    p2nprobe ipv4.pcap -a 300 localhost:25565
+\end{verbatim}
+
+\section{Testování}
+Pro testování jsem vytvořil jednoduchý přijímač pro NetFlow v5 (n2tcap)
+implementovaný v adresáři \textit{n2tcap}, který vypisuje přijaté data na
+standartní výstup. Porovnával jsem pak výstup při použití p2nprobe a softflowd.
+Z výstupu jsem usoudil že program funguje správně ikdyž výstupy nebyly totožné.
+Výstup softflowd měl některé toky spojené dohromady protože z mě neznámého
+důvodu nerespektoval aktivní timeout. Další rozdíl byl že softflowd nevyplňoval
+políčko pro IP TOS.
+
+Při testování jsem využíval address sanitizer a neukazuje žádné chyby.
+
+\end{document}
