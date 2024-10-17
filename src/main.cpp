@@ -3,7 +3,8 @@
 #include <array>
 #include <iostream>
 
-#include "args.hpp"
+#include "cli/args.hpp"
+#include "cli/help.hpp"
 #include "out/net_flow_v5.hpp"
 #include "pcap/pcap.hpp"
 #include "pcap/source.hpp"
@@ -11,24 +12,40 @@
 
 namespace p2np {
 
-int start(int argc, char **argv);
+void start(std::span<char *> a);
+void probe(const cli::Args &args);
 
 } // namespace p2np
 
 int main(int argc, char **argv) {
     try {
-        return p2np::start(argc, argv);
+        p2np::start({ argv, std::size_t(argc) });
+        return EXIT_SUCCESS;
     } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << '\n';
+        return EXIT_FAILURE;
+    } catch (...) {
+        std::cerr << "An error occured.\n";
         return EXIT_FAILURE;
     }
 }
 
 namespace p2np {
 
-int start(int argc, char **argv) {
-    const p2np::Args args({ argv, std::size_t(argc) });
+void start(std::span<char *> a) {
+    const cli::Args args(a);
 
+    switch (args.action()) {
+    case cli::Action::Probe:
+        probe(args);
+        return;
+    case cli::Action::Help:
+        cli::help();
+        return;
+    }
+}
+
+void probe(const cli::Args &args) {
     pcap::init();
     init_uptime();
 
@@ -42,8 +59,6 @@ int start(int argc, char **argv) {
     );
 
     pipeline.run();
-
-    return EXIT_SUCCESS;
 }
 
 } // namespace p2np

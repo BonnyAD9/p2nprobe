@@ -5,7 +5,7 @@
 #include <iterator>
 #include <stdexcept>
 
-namespace p2np {
+namespace p2np::cli {
 
 using std::string_literals::operator""s;
 
@@ -40,6 +40,8 @@ Args::Args(std::span<char *> args) {
                 std::atoll(next(arg, end)),
                 "Inactive timeout (-i)"
             );
+        } else if (*arg == "-h"s || *arg == "-?"s || *arg == "--help"s) {
+            _action = Action::Help;
         } else if (_host_port) {
             if (!_pcap_file_path.empty()) {
                 throw std::runtime_error("Unknown argument `"s + *arg + "`.");
@@ -48,6 +50,10 @@ Args::Args(std::span<char *> args) {
         } else {
             parse_address(*arg);
         }
+    }
+
+    if (_action == Action::Help) {
+        return;
     }
 
     // Validate the arguments
@@ -107,4 +113,4 @@ template<r_iterator<char *> I> char *next(I &iterator, const I &end) {
     return *iterator;
 }
 
-} // namespace p2np
+} // namespace p2np::cli

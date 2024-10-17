@@ -2,8 +2,6 @@
 
 #include "pipeline.hpp"
 
-#include <iostream>
-
 namespace p2np {
 
 void Pipeline::run() {
@@ -17,10 +15,6 @@ void Pipeline::run() {
     }
     _exporter->send(_flows.drain());
     _exporter->stop();
-
-    std::cout << "Total packets: " << total_packets() << '\n'
-              << "Total size   : " << total_size() << '\n'
-              << "Avg size     : " << (total_size() / total_packets()) << '\n';
 }
 
 void Pipeline::process(storage::Packet &pkt) {

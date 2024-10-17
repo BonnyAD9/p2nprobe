@@ -7,7 +7,9 @@
 #include <optional>
 #include <string>
 
-namespace p2np {
+#include "action.hpp"
+
+namespace p2np::cli {
 
 /// @brief Class for parsing command line arguments.
 class Args {
@@ -53,6 +55,12 @@ public:
         );
     }
 
+    /// @brief The main action of the program.
+    [[nodiscard]]
+    Action action() const {
+        return _action;
+    }
+
     static constexpr std::size_t DEFAULT_TIMEOUT = 60;
 
 private:
@@ -65,6 +73,8 @@ private:
 
     std::optional<std::chrono::seconds> _active_timeout;
     std::optional<std::chrono::seconds> _inactive_timeout;
+
+    Action _action = Action::Probe;
 };
 
-} // namespace p2np
+} // namespace p2np::cli
