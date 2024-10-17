@@ -43,6 +43,10 @@ tidy: build
 .PHONY: tidy
 check: fmt cppcheck tidy
 
+.PHONY: submit
+submit:
+	./submit.sh
+
 .PHONY: clean
 clean:
 	-cd build && $(MAKE) clean

@@ -20,6 +20,7 @@ endif()
 
 target_link_libraries(p2nprobe PRIVATE
     pcap
+    -static-libstdc++
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
