@@ -5,3 +5,17 @@ Date: 17.10 2024
 
 p2nprobe is a simple probe for reading unidirectional ipv4 tcp flows and
 sending them using NetFlow v5 format over UDP.
+
+Example usage:
+  p2nprobe -h
+    Prints help.
+
+  p2nprobe 127.0.0.1:25565 capture.pcap
+    Export flows made from packets from the pcap file capture.pcap and send
+    them to the address and port 127.0.0.1:25565. This will implicitly use the
+    default timeouts of 60 s.
+
+  p2nprobe ipv4.pcap -a 300 localhost:25565
+    Export flows made from packets from the pcap file ipv4.pcap and send
+    them to the address and port localhost:25565. Set the active timeout to
+    300 s and implicitly use the default inactive timeout of 60 s.
