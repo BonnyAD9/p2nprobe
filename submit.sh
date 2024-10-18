@@ -1,4 +1,5 @@
 #!/usr/bin/sh
+# Author: Jakub Antonín Štigler
 
 set -e
 
@@ -11,6 +12,7 @@ cp -r src n2tcap CMakeLists.txt README $LOGIN/
 cp doc/manual.pdf $LOGIN/manual.pdf
 
 printf '# Author: Jakub Antonín Štigler (xstigl00)
+# Makefile generated for submit
 
 BUILD_TYPE=Release
 CXX=g++-14.2
@@ -36,6 +38,16 @@ clean:
 ' > $LOGIN/Makefile
 
 printf '
+# Additional configuration added on submit
+
+target_link_libraries(p2nprobe PRIVATE -static-libstdc++)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_link_libraries(n2tcap PRIVATE -static-libstdc++)
+endif()
+' >> $LOGIN/CMakeLists.txt
+
+printf '
 Files:
 ' >> $LOGIN/README
 
@@ -46,9 +58,6 @@ for f in `find . -name '*'`; do
         echo "  ${f#./}" >> README
     fi
 done
-
-sed -r -i -e 's/^target_link_libraries\(p2nprobe PRIVATE$/\0\
-    -static-libstdc\+\+/' CMakeLists.txt
 
 tar cf $LOGIN.tar -- *
 

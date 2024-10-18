@@ -32,4 +32,3 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         src/strerror.cpp
     )
 endif()
-
