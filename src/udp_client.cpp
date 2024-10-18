@@ -6,6 +6,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "strerror.hpp"
+
 namespace p2np {
 
 UdpClient::UdpClient(const std::string &address, std::uint16_t port) {
@@ -29,10 +31,7 @@ UdpClient::UdpClient(const std::string &address, std::uint16_t port) {
     freeaddrinfo(res);
 
     if (!_fd) {
-        using std::string_literals::operator""s;
-        std::array<char, 256> buf;
-        const char *msg = strerror_r(errno, buf.data(), 256);
-        throw std::runtime_error("Failed to open socket: "s + msg);
+        throw std::runtime_error("Failed to open socket: " + strerror());
     }
 }
 
@@ -40,12 +39,7 @@ void UdpClient::send(std::span<const char> data) const {
     auto r =
         sendto(_fd.get(), data.data(), data.size(), 0, address(), _addrlen);
     if (r < 0) {
-        using std::string_literals::operator""s;
-        std::array<char, 256> buf;
-        const char *msg = strerror_r(errno, buf.data(), 256);
-        ;
-        std::cerr << "Failed to send data on " << _fd.get() << ": " << msg
-                  << '\n';
+        std::cerr << "Failed to send data on socket: " << strerror() << '\n';
     }
 }
 

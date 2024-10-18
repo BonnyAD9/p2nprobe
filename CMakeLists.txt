@@ -20,13 +20,16 @@ endif()
 
 target_link_libraries(p2nprobe PRIVATE
     pcap
-    -static-libstdc++
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(n2tcap)
 
     file(GLOB n2tcap_files CONFIGURE_DEPENDS "n2tcap/**/*.cpp" "n2tcap/*.cpp")
-    target_sources(n2tcap PRIVATE ${n2tcap_files} src/ip_address.cpp)
+    target_sources(n2tcap PRIVATE
+        ${n2tcap_files}
+        src/ip_address.cpp
+        src/strerror.cpp
+    )
 endif()
 

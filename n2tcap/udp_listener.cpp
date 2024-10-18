@@ -6,6 +6,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "../src/strerror.hpp"
+
 namespace n2tc {
 
 UdpListener::UdpListener(const std::string &address, std::uint16_t port)
@@ -23,19 +25,12 @@ UdpListener::UdpListener(const std::string &address, std::uint16_t port)
 
     _fd = socket(res->ai_family, SOCK_DGRAM, 0);
     if (!_fd) {
-        using std::string_literals::operator""s;
-        std::array<char, 256> buf;
-        const char *msg = strerror_r(errno, buf.data(), 256);
-        throw std::runtime_error("Failed to open socket: "s + msg);
+        throw std::runtime_error("Failed to open socket: " + strerror());
     }
 
     ret = bind(_fd.get(), res->ai_addr, res->ai_addrlen);
     if (ret < 0) {
-        using std::string_literals::operator""s;
-        std::array<char, 256> buf;
-        const char *msg = strerror_r(errno, buf.data(), 256);
-        ;
-        std::cerr << "Failed to bind: " << _fd.get() << ": " << msg << '\n';
+        throw std::runtime_error("Failed to bind to socket: " + strerror());
     }
 
     freeaddrinfo(res);
@@ -44,11 +39,7 @@ UdpListener::UdpListener(const std::string &address, std::uint16_t port)
 std::span<const char> UdpListener::recv() {
     auto r = ::recv(_fd.get(), _data.data(), MTU, MSG_WAITALL);
     if (r < 0) {
-        using std::string_literals::operator""s;
-        std::array<char, 256> buf;
-        const char *msg = strerror_r(errno, buf.data(), 256);
-        ;
-        std::cerr << "Failed to send data on " << _fd.get() << ": " << msg
+        std::cerr << "Failed to receive data on socket: " << strerror()
                   << '\n';
     }
 

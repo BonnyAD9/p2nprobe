@@ -47,6 +47,9 @@ for f in `find . -name '*'`; do
     fi
 done
 
+sed -r -i -e 's/^target_link_libraries\(p2nprobe PRIVATE$/\0\
+    -static-libstdc\+\+/' CMakeLists.txt
+
 tar cf $LOGIN.tar -- *
 
 cd ..

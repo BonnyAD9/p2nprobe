@@ -57,7 +57,10 @@ Pro sestavování využívám cmake.
 Využívám verze C++20, takže pro kompilaci je potřeba g++ s verzí minimálně 13.
 Projekt funguje i při kompilaci s clang++ 18. Aby kompilace na serveru merlin
 proběhla úspěšně, tak mám kompiler explicitně nastavený na \verb|g++-14.2|,
-protože jinak by se implicitně použil \verb|g++| s verzí 11.5.
+protože jinak by se implicitně použil \verb|g++| s verzí 11.5. Protože výsledný
+program potřebuje novější verzi standartní knihovny než která se na merlinovi
+najde automaticky, nastavil jsem že se standartní C++ knihovna linkuje
+staticky.
 
 Při implementaci jsem se pro propagaci chyb rozhodl využít vyjímek.
 
